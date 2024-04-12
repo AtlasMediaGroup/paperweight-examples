@@ -5,10 +5,10 @@ Subject: [PATCH] Add Scissors configuration file
 
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 0eb61b090d6f8fa6d99735ff3680dac774c52c1f..ce94b0e326c762ce50451658aca8ab55a07e6778 100644
+index 4ff1b38eb65f97344257204cf018f176f247ed36..be766fc9c24bedcc58dac2cb1991345bf5ed17e0 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -2229,6 +2229,13 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+@@ -2235,6 +2235,13 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
          }
          // Paper end
  

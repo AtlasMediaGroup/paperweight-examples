@@ -5,7 +5,7 @@ Subject: [PATCH] Don't query player data in the `nbt` component
 
 
 diff --git a/src/main/java/net/minecraft/network/chat/contents/EntityDataSource.java b/src/main/java/net/minecraft/network/chat/contents/EntityDataSource.java
-index 3bec895fecb3521653fb0b88d4a4854fd3766b46..5fd278ac13c02b9d511be22dba9719cb0cb0e17b 100644
+index 2750702cff35762bc817ffbe5bf81631e86bc49b..8714c3be77490a87aa6df0ff36a87557c6b99e25 100644
 --- a/src/main/java/net/minecraft/network/chat/contents/EntityDataSource.java
 +++ b/src/main/java/net/minecraft/network/chat/contents/EntityDataSource.java
 @@ -8,12 +8,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -23,7 +23,7 @@ index 3bec895fecb3521653fb0b88d4a4854fd3766b46..5fd278ac13c02b9d511be22dba9719cb
 +import net.minecraft.world.entity.player.Player;
  
  public record EntityDataSource(String selectorPattern, @Nullable EntitySelector compiledSelector) implements DataSource {
-     public static final MapCodec<EntityDataSource> SUB_CODEC = RecordCodecBuilder.mapCodec((instance) -> {
+     public static final MapCodec<EntityDataSource> SUB_CODEC = RecordCodecBuilder.mapCodec(
 @@ -39,7 +42,11 @@ public record EntityDataSource(String selectorPattern, @Nullable EntitySelector
      public Stream<CompoundTag> getData(CommandSourceStack source) throws CommandSyntaxException {
          if (this.compiledSelector != null) {

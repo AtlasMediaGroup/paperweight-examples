@@ -5,7 +5,7 @@ Subject: [PATCH] Reject oversized components from updating
 
 
 diff --git a/src/main/java/net/minecraft/network/chat/ComponentUtils.java b/src/main/java/net/minecraft/network/chat/ComponentUtils.java
-index 57206594f305961a33542e1f8079c75bfa7c535f..ea4504be0eb115e563a4abd9dcbcedd57f9edcc2 100644
+index 3365aed2b67ae0e4dd0410f5190ba474f146139b..43b62a07b040b1d7d76dc8f940f35b51d1d5f868 100644
 --- a/src/main/java/net/minecraft/network/chat/ComponentUtils.java
 +++ b/src/main/java/net/minecraft/network/chat/ComponentUtils.java
 @@ -38,8 +38,9 @@ public class ComponentUtils {

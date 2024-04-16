@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Allink <arclicious@vivaldi.net>
-Date: Sun, 10 Dec 2023 18:48:55 -0600
+From: Telesphoreo <me@telesphoreo.me>
+Date: Mon, 15 Apr 2024 23:01:26 -0500
 Subject: [PATCH] Add configuration option to disable chat signatures
 
 
 diff --git a/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java b/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java
-index 74cf1c043beef03cfd5adf481414a5ee78bef2a6..939f4a0639c847b94cfc9acf1409a7a3fc5ae58f 100644
+index c87b708c368713a23a10ad97704575ee4df27891..a650bdccc7f8fe77abe2750c9939f5eb0ccfd57b 100644
 --- a/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java
 +++ b/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java
 @@ -1,5 +1,6 @@
@@ -15,7 +15,7 @@ index 74cf1c043beef03cfd5adf481414a5ee78bef2a6..939f4a0639c847b94cfc9acf1409a7a3
  import net.minecraft.server.level.ServerPlayer;
  
  public interface OutgoingChatMessage {
-@@ -44,10 +45,22 @@ public interface OutgoingChatMessage {
+@@ -46,9 +47,20 @@ public interface OutgoingChatMessage {
              // Paper end
              PlayerChatMessage playerChatMessage = this.message.filter(filterMaskEnabled);
              playerChatMessage = unsigned != null ? playerChatMessage.withUnsignedContent(unsigned) : playerChatMessage; // Paper
@@ -25,7 +25,6 @@ index 74cf1c043beef03cfd5adf481414a5ee78bef2a6..939f4a0639c847b94cfc9acf1409a7a3
                  sender.connection.sendPlayerChatMessage(playerChatMessage, params);
 +                return;
              }
- 
 +            sender.connection.sendPlayerChatMessage(new PlayerChatMessage(
 +                SignedMessageLink.unsigned(playerChatMessage.sender()),
 +                null,
@@ -35,12 +34,11 @@ index 74cf1c043beef03cfd5adf481414a5ee78bef2a6..939f4a0639c847b94cfc9acf1409a7a3
 +                playerChatMessage.result()
 +            ), params);
 +            // Scissors end
-+
          }
      }
  }
 diff --git a/src/main/java/net/minecraft/network/chat/SignedMessageChain.java b/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
-index ba12919c3f9aec34a9e64993b143ae92be5eb172..bdfa4a7f5b50e80195e79a6dd1204cb73bebd79e 100644
+index 0af9ed92824ccf30814eceb6a2c2e5c12661c991..c92374104b4aed2f952b250c5559ab9cc83532da 100644
 --- a/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
 +++ b/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
 @@ -5,6 +5,8 @@ import java.time.Instant;
@@ -49,20 +47,20 @@ index ba12919c3f9aec34a9e64993b143ae92be5eb172..bdfa4a7f5b50e80195e79a6dd1204cb7
  import javax.annotation.Nullable;
 +
 +import me.totalfreedom.scissors.ScissorsConfig;
- import net.minecraft.util.SignatureUpdater;
  import net.minecraft.util.SignatureValidator;
  import net.minecraft.util.Signer;
-@@ -46,7 +48,7 @@ public class SignedMessageChain {
+ import net.minecraft.world.entity.player.ProfilePublicKey;
+@@ -45,7 +47,7 @@ public class SignedMessageChain {
                  if (!playerChatMessage.verify(signatureValidator)) {
                      throw new SignedMessageChain.DecodeException(Component.translatable("multiplayer.disconnect.unsigned_chat"), true, org.bukkit.event.player.PlayerKickEvent.Cause.UNSIGNED_CHAT); // Paper - kick event causes
                  } else {
 -                    if (playerChatMessage.hasExpiredServer(Instant.now())) {
 +                    if (playerChatMessage.hasExpiredServer(Instant.now()) && ScissorsConfig.chatSignaturesEnabled) { // Scissors
-                         LOGGER.warn("Received expired chat: '{}'. Is the client/server system time unsynchronized?", (Object)body.content());
+                         LOGGER.warn("Received expired chat: '{}'. Is the client/server system time unsynchronized?", body.content());
                      }
  
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 23f4fc3cc157830da18bf5905eb51f2ae2b452bd..29d230487b42150b8790685653e1ed24d435b417 100644
+index adbb1036913ba6299f2093c84480e4147a36b344..8d5f4f2a0589c9c34dcff0ca95b6222b90f7d09a 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -1,5 +1,6 @@

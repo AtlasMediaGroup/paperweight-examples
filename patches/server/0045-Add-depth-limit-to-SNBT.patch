@@ -1,14 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Allink <arclicious@vivaldi.net>
-Date: Fri, 2 Jun 2023 22:13:54 +0100
+From: Telesphoreo <me@telesphoreo.me>
+Date: Mon, 15 Apr 2024 23:40:27 -0500
 Subject: [PATCH] Add depth limit to SNBT
 
 
 diff --git a/src/main/java/net/minecraft/nbt/TagParser.java b/src/main/java/net/minecraft/nbt/TagParser.java
-index 94cb73e7f60171aa57bd1dbe7e91ef4db94e70b7..9ed1c477620b41317c4bf2b14ebc672c2fdd4656 100644
+index c77860a141064aea6a0b510bb44d35fea90aee42..3be3dd61b8a27b3a8ca3c72ae5ffa2ea8fa00231 100644
 --- a/src/main/java/net/minecraft/nbt/TagParser.java
 +++ b/src/main/java/net/minecraft/nbt/TagParser.java
-@@ -182,9 +182,56 @@ public class TagParser {
+@@ -184,9 +184,47 @@ public class TagParser {
  
          this.expect('}');
          this.depth--; // Paper
@@ -21,39 +21,30 @@ index 94cb73e7f60171aa57bd1dbe7e91ef4db94e70b7..9ed1c477620b41317c4bf2b14ebc672c
 +        return this.exceedsDepthLimit(0, tag);
 +    }
 +
-+    private boolean exceedsDepthLimit(long depth, Tag tag)
-+    {
-+        if (depth > 256)
-+        {
++    private boolean exceedsDepthLimit(long depth, Tag tag) {
++        if (depth > 256) {
 +            return true;
 +        }
 +
-+        if (tag instanceof ListTag listTag)
-+        {
-+            for (Tag childTag : listTag)
-+            {
++        if (tag instanceof ListTag listTag) {
++            for (Tag childTag : listTag) {
 +                boolean returnValue = this.exceedsDepthLimit(depth + 1, childTag);
 +
-+                if (returnValue)
-+                {
++                if (returnValue) {
 +                    return true;
 +                }
 +            }
-+        } else if (tag instanceof CompoundTag compoundTag)
-+        {
-+            for (String key: compoundTag.getAllKeys())
-+            {
++        } else if (tag instanceof CompoundTag compoundTag) {
++            for (String key : compoundTag.getAllKeys()) {
 +                Tag childTag = compoundTag.get(key);
 +
-+                if (childTag == null)
-+                {
++                if (childTag == null) {
 +                    continue;
 +                }
 +
 +                boolean returnValue = this.exceedsDepthLimit(depth + 1, childTag);
 +
-+                if (returnValue)
-+                {
++                if (returnValue) {
 +                    return true;
 +                }
 +            }
@@ -66,7 +57,7 @@ index 94cb73e7f60171aa57bd1dbe7e91ef4db94e70b7..9ed1c477620b41317c4bf2b14ebc672c
      private Tag readListTag() throws CommandSyntaxException {
          this.expect('[');
          this.reader.skipWhitespace();
-@@ -218,7 +265,7 @@ public class TagParser {
+@@ -220,7 +258,7 @@ public class TagParser {
  
              this.expect(']');
              this.depth--; // Paper
@@ -75,36 +66,36 @@ index 94cb73e7f60171aa57bd1dbe7e91ef4db94e70b7..9ed1c477620b41317c4bf2b14ebc672c
          }
      }
  
-@@ -243,7 +290,7 @@ public class TagParser {
+@@ -245,7 +283,7 @@ public class TagParser {
      }
  
      private <T extends Number> List<T> readArray(TagType<?> arrayTypeReader, TagType<?> typeReader) throws CommandSyntaxException {
 -        List<T> list = Lists.newArrayList();
 +        List<Number> list = Lists.newArrayList(); // Scissors - List<T> -> List<Number>
  
-         while(true) {
-             if (this.reader.peek() != ']') {
-@@ -256,11 +303,11 @@ public class TagParser {
-                 }
- 
-                 if (typeReader == ByteTag.TYPE) {
--                    list.add((T)((NumericTag)tag).getAsNumber()); // Paper - decompile fix
-+                    list.add(((NumericTag)tag).getAsNumber()); // Scissors - Remove (T) cast
-                 } else if (typeReader == LongTag.TYPE) {
--                    list.add((T)((NumericTag)tag).getAsNumber()); // Paper - decompile fix
-+                    list.add(((NumericTag)tag).getAsNumber()); // Scissors - Remove (T) cast
-                 } else {
--                    list.add((T)((NumericTag)tag).getAsNumber()); // Paper - decompile fix
-+                    list.add(((NumericTag)tag).getAsNumber()); // Scissors - Remove (T) cast
-                 }
- 
-                 if (this.hasElementSeparator()) {
-@@ -272,7 +319,7 @@ public class TagParser {
+         while (this.reader.peek() != ']') {
+             int i = this.reader.getCursor();
+@@ -257,11 +295,11 @@ public class TagParser {
              }
  
-             this.expect(']');
--            return list;
-+            return (List<T>) list; // Scissors - Cast to List<T>
+             if (typeReader == ByteTag.TYPE) {
+-                list.add((T)(Byte)((NumericTag)tag).getAsByte()); // Paper - decompile fix
++                list.add(((NumericTag)tag).getAsByte()); // Scissors - Remove (T) cast
+             } else if (typeReader == LongTag.TYPE) {
+-                list.add((T)(Long)((NumericTag)tag).getAsLong()); // Paper - decompile fix
++                list.add(((NumericTag)tag).getAsLong()); // Scissors - Remove (T) cast
+             } else {
+-                list.add((T)(Integer)((NumericTag)tag).getAsInt()); // Paper - decompile fix
++                list.add(((NumericTag)tag).getAsInt()); // Scissors - Remove (T) cast
+             }
+ 
+             if (!this.hasElementSeparator()) {
+@@ -274,7 +312,7 @@ public class TagParser {
          }
+ 
+         this.expect(']');
+-        return list;
++        return (List<T>) list; // Scissors - Cast to List<T>
      }
  
+     private boolean hasElementSeparator() {

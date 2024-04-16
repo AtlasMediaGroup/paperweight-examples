@@ -5,32 +5,32 @@ Subject: [PATCH] Limit string tag visitors to 1024 elements
 
 
 diff --git a/src/main/java/net/minecraft/nbt/SnbtPrinterTagVisitor.java b/src/main/java/net/minecraft/nbt/SnbtPrinterTagVisitor.java
-index e07cc7970955ce240754cfe424d768c2bba0241a..a4f41bb4ec6cb20f782668c714229b61415cfdfb 100644
+index b45bb4ddf6b586ba1285db230e0bc3d1b5e447e8..4a46935cac263325a87a1b0bf32302839a75516e 100644
 --- a/src/main/java/net/minecraft/nbt/SnbtPrinterTagVisitor.java
 +++ b/src/main/java/net/minecraft/nbt/SnbtPrinterTagVisitor.java
 @@ -89,6 +89,7 @@ public class SnbtPrinterTagVisitor implements TagVisitor {
      public void visitByteArray(ByteArrayTag element) {
-         StringBuilder stringBuilder = (new StringBuilder("[")).append("B").append(";");
+         StringBuilder stringBuilder = new StringBuilder("[").append("B").append(";");
          byte[] bs = element.getAsByteArray();
 +        if (bs.length > 1024) { this.result = stringBuilder.append("]").toString(); return; } // Scissors
  
-         for(int i = 0; i < bs.length; ++i) {
-             stringBuilder.append(" ").append((int)bs[i]).append("B");
+         for (int i = 0; i < bs.length; i++) {
+             stringBuilder.append(" ").append(bs[i]).append("B");
 @@ -105,6 +106,7 @@ public class SnbtPrinterTagVisitor implements TagVisitor {
      public void visitIntArray(IntArrayTag element) {
-         StringBuilder stringBuilder = (new StringBuilder("[")).append("I").append(";");
+         StringBuilder stringBuilder = new StringBuilder("[").append("I").append(";");
          int[] is = element.getAsIntArray();
 +        if (is.length > 1024) { this.result = stringBuilder.append("]").toString(); return; } // Scissors
  
-         for(int i = 0; i < is.length; ++i) {
+         for (int i = 0; i < is.length; i++) {
              stringBuilder.append(" ").append(is[i]);
 @@ -122,6 +124,7 @@ public class SnbtPrinterTagVisitor implements TagVisitor {
          String string = "L";
-         StringBuilder stringBuilder = (new StringBuilder("[")).append("L").append(";");
+         StringBuilder stringBuilder = new StringBuilder("[").append("L").append(";");
          long[] ls = element.getAsLongArray();
 +        if (ls.length > 1024) { this.result = stringBuilder.append("]").toString(); return; } // Scissors
  
-         for(int i = 0; i < ls.length; ++i) {
+         for (int i = 0; i < ls.length; i++) {
              stringBuilder.append(" ").append(ls[i]).append("L");
 @@ -136,7 +139,7 @@ public class SnbtPrinterTagVisitor implements TagVisitor {
  
@@ -51,7 +51,7 @@ index e07cc7970955ce240754cfe424d768c2bba0241a..a4f41bb4ec6cb20f782668c714229b61
          } else {
              StringBuilder stringBuilder = new StringBuilder("{");
 diff --git a/src/main/java/net/minecraft/nbt/StringTagVisitor.java b/src/main/java/net/minecraft/nbt/StringTagVisitor.java
-index a687a0f17df30126d53a1e3a669dc6d157c23ed5..2c50f41dd8034af16fcceca75eeb6c7a9940e327 100644
+index d8892641d5671fa100aeb43d42ebb6103a2d280c..d10242ecd6f8442e1af3f4cd13f769517b33058a 100644
 --- a/src/main/java/net/minecraft/nbt/StringTagVisitor.java
 +++ b/src/main/java/net/minecraft/nbt/StringTagVisitor.java
 @@ -53,6 +53,7 @@ public class StringTagVisitor implements TagVisitor {
@@ -60,7 +60,7 @@ index a687a0f17df30126d53a1e3a669dc6d157c23ed5..2c50f41dd8034af16fcceca75eeb6c7a
          byte[] bs = element.getAsByteArray();
 +        if (bs.length > 1024) { this.builder.append(']'); return; } // Scissors
  
-         for(int i = 0; i < bs.length; ++i) {
+         for (int i = 0; i < bs.length; i++) {
              if (i != 0) {
 @@ -69,6 +70,7 @@ public class StringTagVisitor implements TagVisitor {
      public void visitIntArray(IntArrayTag element) {
@@ -68,7 +68,7 @@ index a687a0f17df30126d53a1e3a669dc6d157c23ed5..2c50f41dd8034af16fcceca75eeb6c7a
          int[] is = element.getAsIntArray();
 +        if (is.length > 1024) { this.builder.append(']'); return; } // Scissors
  
-         for(int i = 0; i < is.length; ++i) {
+         for (int i = 0; i < is.length; i++) {
              if (i != 0) {
 @@ -85,6 +87,7 @@ public class StringTagVisitor implements TagVisitor {
      public void visitLongArray(LongArrayTag element) {
@@ -76,7 +76,7 @@ index a687a0f17df30126d53a1e3a669dc6d157c23ed5..2c50f41dd8034af16fcceca75eeb6c7a
          long[] ls = element.getAsLongArray();
 +        if (ls.length > 1024) { this.builder.append(']'); return; } // Scissors
  
-         for(int i = 0; i < ls.length; ++i) {
+         for (int i = 0; i < ls.length; i++) {
              if (i != 0) {
 @@ -100,6 +103,7 @@ public class StringTagVisitor implements TagVisitor {
      @Override
@@ -84,7 +84,7 @@ index a687a0f17df30126d53a1e3a669dc6d157c23ed5..2c50f41dd8034af16fcceca75eeb6c7a
          this.builder.append('[');
 +        if (element.size() > 1024) { this.builder.append(']'); return; } // Scissors
  
-         for(int i = 0; i < element.size(); ++i) {
+         for (int i = 0; i < element.size(); i++) {
              if (i != 0) {
 @@ -116,6 +120,7 @@ public class StringTagVisitor implements TagVisitor {
      public void visitCompound(CompoundTag compound) {
@@ -93,9 +93,9 @@ index a687a0f17df30126d53a1e3a669dc6d157c23ed5..2c50f41dd8034af16fcceca75eeb6c7a
 +        if (list.size() > 1024) { this.builder.append('}'); return; } // Scissors
          Collections.sort(list);
  
-         for(String string : list) {
+         for (String string : list) {
 diff --git a/src/main/java/net/minecraft/nbt/TextComponentTagVisitor.java b/src/main/java/net/minecraft/nbt/TextComponentTagVisitor.java
-index 149def3da0b92f64e4fc04630965dce44884f938..c9d753f37bd65e35f8a4e2eb5c6fe8f74d5d1606 100644
+index 4e238ae29347c5e976ff0d506e94972df0aa7362..9776b9741a7ec46c603b2c2bccd5f006c15cee41 100644
 --- a/src/main/java/net/minecraft/nbt/TextComponentTagVisitor.java
 +++ b/src/main/java/net/minecraft/nbt/TextComponentTagVisitor.java
 @@ -97,6 +97,7 @@ public class TextComponentTagVisitor implements TagVisitor {
@@ -104,15 +104,15 @@ index 149def3da0b92f64e4fc04630965dce44884f938..c9d753f37bd65e35f8a4e2eb5c6fe8f7
          byte[] bs = element.getAsByteArray();
 +        if (bs.length > 1024) { this.result = mutableComponent.append("]"); return; } // Scissors
  
-         for(int i = 0; i < bs.length; ++i) {
-             MutableComponent mutableComponent2 = Component.literal(String.valueOf((int)bs[i])).withStyle(SYNTAX_HIGHLIGHTING_NUMBER);
+         for (int i = 0; i < bs.length; i++) {
+             MutableComponent mutableComponent2 = Component.literal(String.valueOf(bs[i])).withStyle(SYNTAX_HIGHLIGHTING_NUMBER);
 @@ -115,6 +116,7 @@ public class TextComponentTagVisitor implements TagVisitor {
          Component component = Component.literal("I").withStyle(SYNTAX_HIGHLIGHTING_NUMBER_TYPE);
          MutableComponent mutableComponent = Component.literal("[").append(component).append(";");
          int[] is = element.getAsIntArray();
 +        if (is.length > 1024) { this.result = mutableComponent.append("]"); return; } // Scissors
  
-         for(int i = 0; i < is.length; ++i) {
+         for (int i = 0; i < is.length; i++) {
              mutableComponent.append(" ").append(Component.literal(String.valueOf(is[i])).withStyle(SYNTAX_HIGHLIGHTING_NUMBER));
 @@ -132,6 +134,7 @@ public class TextComponentTagVisitor implements TagVisitor {
          Component component = Component.literal("L").withStyle(SYNTAX_HIGHLIGHTING_NUMBER_TYPE);
@@ -120,7 +120,7 @@ index 149def3da0b92f64e4fc04630965dce44884f938..c9d753f37bd65e35f8a4e2eb5c6fe8f7
          long[] ls = element.getAsLongArray();
 +        if (ls.length > 1024) { this.result = mutableComponent.append("]"); return; } // Scissors
  
-         for(int i = 0; i < ls.length; ++i) {
+         for (int i = 0; i < ls.length; i++) {
              Component component2 = Component.literal(String.valueOf(ls[i])).withStyle(SYNTAX_HIGHLIGHTING_NUMBER);
 @@ -147,7 +150,7 @@ public class TextComponentTagVisitor implements TagVisitor {
  

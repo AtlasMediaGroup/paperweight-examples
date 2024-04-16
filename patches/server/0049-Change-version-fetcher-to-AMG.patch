@@ -75,7 +75,7 @@ index 9d687da5bdf398bb3f6c84cdf1249a7213d09f2e..48dd50d0e443a59835e92616874c9856
          switch (distance) {
              case -1:
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index 058819b39f0e2ba248e0a0c834f462a89263442b..f5363e289cdb0b0d71ff6d902acf5ee603ddcf98 100644
+index c0538206a53f0e6d9b54bddde0259b89ac73d675..5ebb80ed81d9bbd4c69a14ccd0be6c67de2fcf0d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
 @@ -315,7 +315,7 @@ public class Main {

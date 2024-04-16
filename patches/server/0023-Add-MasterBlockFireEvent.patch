@@ -40,7 +40,7 @@ index 7ef14e4441a329c680a5dfe4bfb5033ffcb8f9d5..eff5bdf00b0aa7a9925ff59a62ead725
              executor.performCommand(world);
          } else {
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/JigsawBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/JigsawBlockEntity.java
-index e2e31d6383c7de4f2eede46987d51978a5692639..9e5bb41c20e92cc39c99bfb3c801e9e432ba23cd 100644
+index 447b0359922011fe12b1bb9628d23a47c9d7dc89..0d6be671e1512074ae1265fe93a5d5437f3929dd 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/JigsawBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/JigsawBlockEntity.java
 @@ -2,6 +2,8 @@ package net.minecraft.world.level.block.entity;
@@ -60,7 +60,7 @@ index e2e31d6383c7de4f2eede46987d51978a5692639..9e5bb41c20e92cc39c99bfb3c801e9e4
  
  public class JigsawBlockEntity extends BlockEntity {
      public static final String TARGET = "target";
-@@ -131,6 +134,16 @@ public class JigsawBlockEntity extends BlockEntity {
+@@ -134,6 +137,16 @@ public class JigsawBlockEntity extends BlockEntity {
      }
  
      public void generate(ServerLevel world, int maxDepth, boolean keepJigsaws) {
@@ -78,7 +78,7 @@ index e2e31d6383c7de4f2eede46987d51978a5692639..9e5bb41c20e92cc39c99bfb3c801e9e4
          Registry<StructureTemplatePool> registry = world.registryAccess().registryOrThrow(Registries.TEMPLATE_POOL);
          // Paper start - Replace getHolderOrThrow with a null check
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/StructureBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/StructureBlockEntity.java
-index 60c941bd67dc899ea923f8ee49412de01ce199db..9bcd07f8b5d266c39034e5c021da9ffb7262b474 100644
+index 29c59e4a1283ac211b18b953ed6c03834a2587bd..fb385cd66226200ed0b8439cb6659dbac6c2b229 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/StructureBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/StructureBlockEntity.java
 @@ -5,6 +5,8 @@ import java.util.Objects;
@@ -98,7 +98,7 @@ index 60c941bd67dc899ea923f8ee49412de01ce199db..9bcd07f8b5d266c39034e5c021da9ffb
  
  public class StructureBlockEntity extends BlockEntity {
      private static final int SCAN_CORNER_BLOCKS_RANGE = 5;
-@@ -261,7 +264,7 @@ public class StructureBlockEntity extends BlockEntity {
+@@ -259,7 +262,7 @@ public class StructureBlockEntity extends BlockEntity {
              return false;
          } else {
              BlockPos blockPos = this.getBlockPos();
@@ -107,7 +107,7 @@ index 60c941bd67dc899ea923f8ee49412de01ce199db..9bcd07f8b5d266c39034e5c021da9ffb
              BlockPos blockPos2 = new BlockPos(blockPos.getX() - 80, this.level.getMinBuildHeight(), blockPos.getZ() - 80);
              BlockPos blockPos3 = new BlockPos(blockPos.getX() + 80, this.level.getMaxBuildHeight() - 1, blockPos.getZ() + 80);
              Stream<BlockPos> stream = this.getRelatedCorners(blockPos2, blockPos3);
-@@ -320,6 +323,16 @@ public class StructureBlockEntity extends BlockEntity {
+@@ -316,6 +319,16 @@ public class StructureBlockEntity extends BlockEntity {
          if (this.structureName == null) {
              return false;
          } else {
@@ -124,7 +124,7 @@ index 60c941bd67dc899ea923f8ee49412de01ce199db..9bcd07f8b5d266c39034e5c021da9ffb
              BlockPos blockPos = this.getBlockPos().offset(this.structurePos);
              ServerLevel serverLevel = (ServerLevel)this.level;
              StructureTemplateManager structureTemplateManager = serverLevel.getStructureManager();
-@@ -371,6 +384,16 @@ public class StructureBlockEntity extends BlockEntity {
+@@ -367,6 +380,16 @@ public class StructureBlockEntity extends BlockEntity {
          if (structureTemplate == null) {
              return false;
          } else {

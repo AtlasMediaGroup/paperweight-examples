@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Allink <arclicious@vivaldi.net>
-Date: Mon, 11 Dec 2023 12:27:44 -0600
+From: Telesphoreo <me@telesphoreo.me>
+Date: Mon, 15 Apr 2024 23:27:16 -0500
 Subject: [PATCH] Implement command block events
 
 
@@ -18,7 +18,7 @@ index c99fc118013cb3d4043638e2001a8297e79ddf9c..cdaa81e1f2167b29ec01cc25e51a8400
      private final boolean trackOutput;
  
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index f2c3b81779bbd2c52068750e65e66e1ca6c4d492..b69f7c74fe4e2ec6280ebee27f8b8fd0ec8ac361 100644
+index 88c98ba7673808819b8f85876f22743bc3a4f471..f96c0c5007d9e1d86bfe27518815dc798e431c6a 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -1,6 +1,8 @@
@@ -64,7 +64,7 @@ index f2c3b81779bbd2c52068750e65e66e1ca6c4d492..b69f7c74fe4e2ec6280ebee27f8b8fd0
                  commandblocklistenerabstract.setCommand(s);
                  commandblocklistenerabstract.setTrackOutput(flag);
                  if (!flag) {
-@@ -936,7 +951,18 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+@@ -936,7 +951,17 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
              BaseCommandBlock commandblocklistenerabstract = packet.getCommandBlock(this.player.level());
  
              if (commandblocklistenerabstract != null) {
@@ -79,7 +79,6 @@ index f2c3b81779bbd2c52068750e65e66e1ca6c4d492..b69f7c74fe4e2ec6280ebee27f8b8fd0
 +
 +                command = event.getNewCommand();
 +                commandblocklistenerabstract.setCommand(command);
-+
 +                // Scissors end
                  commandblocklistenerabstract.setTrackOutput(packet.isTrackOutput());
                  if (!packet.isTrackOutput()) {

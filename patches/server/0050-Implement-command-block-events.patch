@@ -1,0 +1,85 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Mon, 15 Apr 2024 23:27:16 -0500
+Subject: [PATCH] Implement command block events
+
+
+diff --git a/src/main/java/net/minecraft/network/protocol/game/ServerboundSetCommandMinecartPacket.java b/src/main/java/net/minecraft/network/protocol/game/ServerboundSetCommandMinecartPacket.java
+index c99fc118013cb3d4043638e2001a8297e79ddf9c..cdaa81e1f2167b29ec01cc25e51a8400deb533d2 100644
+--- a/src/main/java/net/minecraft/network/protocol/game/ServerboundSetCommandMinecartPacket.java
++++ b/src/main/java/net/minecraft/network/protocol/game/ServerboundSetCommandMinecartPacket.java
+@@ -9,7 +9,7 @@ import net.minecraft.world.level.BaseCommandBlock;
+ import net.minecraft.world.level.Level;
+ 
+ public class ServerboundSetCommandMinecartPacket implements Packet<ServerGamePacketListener> {
+-    private final int entity;
++    public final int entity; // Scissors - private -> public
+     private final String command;
+     private final boolean trackOutput;
+ 
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 88c98ba7673808819b8f85876f22743bc3a4f471..f96c0c5007d9e1d86bfe27518815dc798e431c6a 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -1,6 +1,8 @@
+ package net.minecraft.server.network;
+ 
+ import me.totalfreedom.scissors.ScissorsConfig;
++import me.totalfreedom.scissors.event.block.CommandBlockPlayerEditEvent;
++import me.totalfreedom.scissors.event.block.CommandMinecartPlayerEditEvent;
+ import me.totalfreedom.scissors.event.player.SpectatorTeleportEvent; // Scissors
+ import com.google.common.collect.Lists;
+ import com.google.common.primitives.Floats;
+@@ -155,6 +157,7 @@ import net.minecraft.world.entity.player.Inventory;
+ import net.minecraft.world.entity.player.ProfilePublicKey;
+ import net.minecraft.world.entity.projectile.AbstractArrow;
+ import net.minecraft.world.entity.vehicle.Boat;
++import net.minecraft.world.entity.vehicle.MinecartCommandBlock;
+ import net.minecraft.world.inventory.AbstractContainerMenu;
+ import net.minecraft.world.inventory.AnvilMenu;
+ import net.minecraft.world.inventory.BeaconMenu;
+@@ -189,6 +192,8 @@ import net.minecraft.world.phys.Vec3;
+ import net.minecraft.world.phys.shapes.BooleanOp;
+ import net.minecraft.world.phys.shapes.Shapes;
+ import net.minecraft.world.phys.shapes.VoxelShape;
++import org.bukkit.craftbukkit.block.CraftCommandBlock;
++import org.bukkit.craftbukkit.entity.CraftMinecartCommand;
+ import org.slf4j.Logger;
+ 
+ // CraftBukkit start
+@@ -905,6 +910,16 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+                     this.player.level().getChunkAt(blockposition).setBlockEntity(tileentity);
+                 }
+ 
++                // Scissors start
++                CommandBlockPlayerEditEvent event = new CommandBlockPlayerEditEvent(this.getCraftPlayer(), commandblocklistenerabstract.getCommand(), s, new CraftCommandBlock(this.player.level().getWorld(), tileentitycommand));
++
++                if (!event.callEvent()) {
++                    return;
++                }
++
++                s = event.getNewCommand();
++                // Scissors end
++
+                 commandblocklistenerabstract.setCommand(s);
+                 commandblocklistenerabstract.setTrackOutput(flag);
+                 if (!flag) {
+@@ -936,7 +951,17 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+             BaseCommandBlock commandblocklistenerabstract = packet.getCommandBlock(this.player.level());
+ 
+             if (commandblocklistenerabstract != null) {
+-                commandblocklistenerabstract.setCommand(packet.getCommand());
++                // Scissors start - Implement command block events
++                String command = packet.getCommand();
++                CommandMinecartPlayerEditEvent event = new CommandMinecartPlayerEditEvent(this.getCraftPlayer(), commandblocklistenerabstract.getCommand(), command, new CraftMinecartCommand(this.cserver, (MinecartCommandBlock) this.player.level().getEntity(packet.entity)));
++
++                if (!event.callEvent()) {
++                    return;
++                }
++
++                command = event.getNewCommand();
++                commandblocklistenerabstract.setCommand(command);
++                // Scissors end
+                 commandblocklistenerabstract.setTrackOutput(packet.isTrackOutput());
+                 if (!packet.isTrackOutput()) {
+                     commandblocklistenerabstract.setLastOutput((Component) null);

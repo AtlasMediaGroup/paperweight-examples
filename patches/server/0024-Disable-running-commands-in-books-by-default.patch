@@ -5,7 +5,7 @@ Subject: [PATCH] Disable running commands in books by default
 
 
 diff --git a/src/main/java/net/minecraft/world/item/WrittenBookItem.java b/src/main/java/net/minecraft/world/item/WrittenBookItem.java
-index 258a636a59203c4e5415a89002c6a607338f9514..dbc2993a105214d945a49e1eb5b910d28c09ae41 100644
+index 793ab8acd7445984cff2628e3f001661dc20c8e5..0e6e0d6a9c645db0121637262a6cf90172d3c385 100644
 --- a/src/main/java/net/minecraft/world/item/WrittenBookItem.java
 +++ b/src/main/java/net/minecraft/world/item/WrittenBookItem.java
 @@ -2,6 +2,7 @@ package net.minecraft.world.item;
@@ -26,7 +26,7 @@ index 258a636a59203c4e5415a89002c6a607338f9514..dbc2993a105214d945a49e1eb5b910d2
  import net.minecraft.stats.Stats;
  import net.minecraft.util.StringUtil;
  import net.minecraft.world.InteractionHand;
-@@ -161,9 +161,43 @@ public class WrittenBookItem extends Item {
+@@ -162,9 +162,43 @@ public class WrittenBookItem extends Item {
              component2 = Component.literal(text);
          }
  

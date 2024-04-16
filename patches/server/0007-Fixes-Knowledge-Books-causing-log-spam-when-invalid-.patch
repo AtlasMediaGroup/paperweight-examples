@@ -6,17 +6,17 @@ Subject: [PATCH] Fixes Knowledge Books causing log spam when invalid data is
 
 
 diff --git a/src/main/java/net/minecraft/world/item/KnowledgeBookItem.java b/src/main/java/net/minecraft/world/item/KnowledgeBookItem.java
-index 37f37be56bab171df442b980ff46ff325daae283..deade19d16a7d6870171b9a60806a8cadb437db4 100644
+index 5ebc309aed545a4c22970e617519fe916a29fa3c..14a35465e41c9ecb51bea5b084e2637ebd21d295 100644
 --- a/src/main/java/net/minecraft/world/item/KnowledgeBookItem.java
 +++ b/src/main/java/net/minecraft/world/item/KnowledgeBookItem.java
 @@ -40,9 +40,9 @@ public class KnowledgeBookItem extends Item {
  
-                 for(int i = 0; i < listTag.size(); ++i) {
+                 for (int i = 0; i < listTag.size(); i++) {
                      String string = listTag.getString(i);
 -                    Optional<RecipeHolder<?>> optional = recipeManager.byKey(new ResourceLocation(string));
 +                    Optional<RecipeHolder<?>> optional = recipeManager.byKey(ResourceLocation.tryParse(string)); // Scissors - Validate resource locations
                      if (!optional.isPresent()) {
--                        LOGGER.error("Invalid recipe: {}", (Object)string);
+-                        LOGGER.error("Invalid recipe: {}", string);
 +                        // Scissors - Don't log errors caused by invalid recipes being provided
                          return InteractionResultHolder.fail(itemStack);
                      }
@@ -25,7 +25,7 @@ index 37f37be56bab171df442b980ff46ff325daae283..deade19d16a7d6870171b9a60806a8ca
  
              return InteractionResultHolder.sidedSuccess(itemStack, world.isClientSide());
          } else {
--            LOGGER.error("Tag not valid: {}", (Object)compoundTag);
+-            LOGGER.error("Tag not valid: {}", compoundTag);
 +            // Scissors - Don't throw errors into the logs if an NBT compound isn't present or is missing the Recipes tag.
              return InteractionResultHolder.fail(itemStack);
          }

@@ -5,7 +5,7 @@ Subject: [PATCH] UUID validation
 
 
 diff --git a/src/main/java/net/minecraft/network/chat/HoverEvent.java b/src/main/java/net/minecraft/network/chat/HoverEvent.java
-index 7fd85ae2ebd7225f06d874aa7e37fbdb89e3ea92..b2cc15da40aa7bbcfc234b4e147ed0e53f359efa 100644
+index 9067bab8ec695417d479393f07d9bc6432427d73..433e586bed53a8c17adec74b3088899c748d4be3 100644
 --- a/src/main/java/net/minecraft/network/chat/HoverEvent.java
 +++ b/src/main/java/net/minecraft/network/chat/HoverEvent.java
 @@ -20,6 +20,7 @@ import net.minecraft.nbt.CompoundTag;
@@ -16,7 +16,7 @@ index 7fd85ae2ebd7225f06d874aa7e37fbdb89e3ea92..b2cc15da40aa7bbcfc234b4e147ed0e5
  import net.minecraft.util.StringRepresentable;
  import net.minecraft.world.entity.EntityType;
  import net.minecraft.world.item.Item;
-@@ -161,7 +162,14 @@ public class HoverEvent {
+@@ -148,7 +149,14 @@ public class HoverEvent {
                  CompoundTag compoundTag = TagParser.parseTag(text.getString());
                  Component component = Component.Serializer.fromJson(compoundTag.getString("name"));
                  EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(compoundTag.getString("type")));
@@ -31,4 +31,4 @@ index 7fd85ae2ebd7225f06d874aa7e37fbdb89e3ea92..b2cc15da40aa7bbcfc234b4e147ed0e5
 +                // Scissors end
                  return DataResult.success(new HoverEvent.EntityTooltipInfo(entityType, uUID, component));
              } catch (Exception var5) {
-                 return DataResult.error(() -> {
+                 return DataResult.error(() -> "Failed to parse tooltip: " + var5.getMessage());

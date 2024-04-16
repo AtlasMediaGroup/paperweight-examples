@@ -5,7 +5,7 @@ Subject: [PATCH] Prevent invalid container events
 
 
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index d0a7490c153e7968c657a525908de58f60f26c20..807117124668040121c5252a10c33ad100c0b0da 100644
+index a60f594b3d7c8c30344f5e888e4309b8f75fdeaf..cfe4f98458c1b1fd311535552b99937d1f319c0e 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -29,6 +29,7 @@ import java.util.function.UnaryOperator;

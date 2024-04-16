@@ -5,7 +5,7 @@ Subject: [PATCH] Block server-side chunkbans
 
 
 diff --git a/src/main/java/net/minecraft/network/PacketEncoder.java b/src/main/java/net/minecraft/network/PacketEncoder.java
-index 85b8be8ffac0fb40e9cae0528271ed41473811c8..d0cfc4fc00d45c91380d2d794ca816db74d40266 100644
+index 96d5448019d53ac3575e209c1c5c223a62a2638d..d0cfc4fc00d45c91380d2d794ca816db74d40266 100644
 --- a/src/main/java/net/minecraft/network/PacketEncoder.java
 +++ b/src/main/java/net/minecraft/network/PacketEncoder.java
 @@ -7,8 +7,17 @@ import io.netty.handler.codec.MessageToByteEncoder;
@@ -50,7 +50,7 @@ index 85b8be8ffac0fb40e9cae0528271ed41473811c8..d0cfc4fc00d45c91380d2d794ca816db
      protected void encode(ChannelHandlerContext channelHandlerContext, Packet<?> packet, ByteBuf byteBuf) throws Exception {
          Attribute<ConnectionProtocol.CodecData<?>> attribute = channelHandlerContext.channel().attr(this.codecKey);
          ConnectionProtocol.CodecData<?> codecData = attribute.get();
-@@ -34,46 +60,58 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
+@@ -34,45 +60,58 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
                  throw new IOException("Can't serialize unregistered packet");
              } else {
                  FriendlyByteBuf friendlyByteBuf = new FriendlyByteBuf(byteBuf);
@@ -74,7 +74,10 @@ index 85b8be8ffac0fb40e9cae0528271ed41473811c8..d0cfc4fc00d45c91380d2d794ca816db
 -                    String packetName = io.papermc.paper.util.ObfHelper.INSTANCE.deobfClassName(packet.getClass().getName());
 -                    if (packetName.contains(".")) {
 -                        packetName = packetName.substring(packetName.lastIndexOf(".") + 1);
--                    }
++                    packet = capPacket(packet, i);
++                    if (packet == null) {
++                        throw new SkipPacketException(new IllegalArgumentException("Packet too big: " + packet));
+                     }
 -
 -                    LOGGER.error("Packet encoding of packet {} (ID: {}) threw (skippable? {})", packetName, i, packet.isSkippable(), var13);
 -                    // Paper end
@@ -88,16 +91,12 @@ index 85b8be8ffac0fb40e9cae0528271ed41473811c8..d0cfc4fc00d45c91380d2d794ca816db
 -                    int packetLength = friendlyByteBuf.readableBytes();
 -                    if (packetLength > MAX_PACKET_SIZE) {
 -                        throw new PacketTooLargeException(packet, this.codecKey, packetLength);
-+                    packet = capPacket(packet, i);
-+                    if (packet == null) {
-+                        throw new SkipPacketException(new IllegalArgumentException("Packet too big: " + packet));
-                     }
+-                    }
 -                    // Paper end - Handle large packets disconnecting client
 -                    ProtocolSwapHandler.swapProtocolIfNeeded(attribute, packet);
 +                    friendlyByteBuf.clear();
 +                    k = this.tryWrite(packet, friendlyByteBuf, channelHandlerContext, i);
                  }
--
 +                JvmProfiler.INSTANCE.onPacketSent(codecData.protocol(), i, channelHandlerContext.channel().remoteAddress(), k);
 +                ProtocolSwapHandler.swapProtocolIfNeeded(attribute, packet);
 +                // Scissors end
@@ -154,7 +153,7 @@ index 3944852921335c78a04a9dc301882ab5b152b1ed..96ee53c7cc862e059328c5cdf5e07f30
          this.type = blockEntityType;
          this.tag = nbt.isEmpty() ? null : nbt;
 diff --git a/src/main/java/net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData.java b/src/main/java/net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData.java
-index 998deae645b4497c3285bfba3260c636439f9ecf..f419d4330ea55c1ed91c539a7884ee6814a16ca3 100644
+index 76bde683d193b37e563a67c1c7b9bdcf17d64524..185aa88ff28e6f3e3314abe19dff88609a47334e 100644
 --- a/src/main/java/net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData.java
 +++ b/src/main/java/net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData.java
 @@ -33,6 +33,13 @@ public class ClientboundLevelChunkPacketData {
@@ -174,7 +173,7 @@ index 998deae645b4497c3285bfba3260c636439f9ecf..f419d4330ea55c1ed91c539a7884ee68
 @@ -58,6 +65,7 @@ public class ClientboundLevelChunkPacketData {
          int totalTileEntities = 0; // Paper - Handle oversized block entities in chunks
  
-         for(Map.Entry<BlockPos, BlockEntity> entry2 : chunk.getBlockEntities().entrySet()) {
+         for (Entry<BlockPos, BlockEntity> entry2 : chunk.getBlockEntities().entrySet()) {
 +            if (this.extraPackets.size() > 50) break; // Scissors - Limit extraPackets size
              // Paper start - Handle oversized block entities in chunks
              if (++totalTileEntities > TE_LIMIT) {

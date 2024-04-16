@@ -5,19 +5,19 @@ Subject: [PATCH] Limit map decorations
 
 
 diff --git a/src/main/java/net/minecraft/network/protocol/game/ClientboundMapItemDataPacket.java b/src/main/java/net/minecraft/network/protocol/game/ClientboundMapItemDataPacket.java
-index 17343d515044f3678b4edf070ee7ca244adc4228..8ade519114bec879bed8e8e23707a85327da131b 100644
+index 02e3d1c9c18952ba53507f7b6887fd3c81af33a9..61573844b236838fd219526ea35df8c7b0c94026 100644
 --- a/src/main/java/net/minecraft/network/protocol/game/ClientboundMapItemDataPacket.java
 +++ b/src/main/java/net/minecraft/network/protocol/game/ClientboundMapItemDataPacket.java
-@@ -65,7 +65,8 @@ public class ClientboundMapItemDataPacket implements Packet<ClientGamePacketList
+@@ -63,7 +63,8 @@ public class ClientboundMapItemDataPacket implements Packet<ClientGamePacketList
                  b.writeByte(icon.x());
                  b.writeByte(icon.y());
                  b.writeByte(icon.rot() & 15);
 -                b.writeNullable(icon.name(), FriendlyByteBuf::writeComponent);
 +                final boolean passedNameCap = icon.name() == null || icon.name().getString().length() <= 32; // Scissors
 +                b.writeNullable(passedNameCap ? icon.name() : null, FriendlyByteBuf::writeComponent); // Scissors
-             });
-         });
+             }));
          if (this.colorPatch != null) {
+             buf.writeByte(this.colorPatch.width);
 diff --git a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
 index 45269115e63cfc3bd7dc740a5694e2cc7c35bcb1..85ea95f55fd6177748edf921e2380142d93b8b06 100644
 --- a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java

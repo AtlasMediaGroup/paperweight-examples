@@ -5,10 +5,10 @@ Subject: [PATCH] Validate BlockState and SoundEvent values
 
 
 diff --git a/src/main/java/net/minecraft/nbt/NbtUtils.java b/src/main/java/net/minecraft/nbt/NbtUtils.java
-index e3a3f19a6e63fd42e29c418e5a7439972484d492..39866c58f9dbca9b4f0018922eac076c64ffbdae 100644
+index fe4bea6af0d8734f3a5b972dce5f1e3914d6690e..0ee64be4288f59240beec26c470b78cc1aeac424 100644
 --- a/src/main/java/net/minecraft/nbt/NbtUtils.java
 +++ b/src/main/java/net/minecraft/nbt/NbtUtils.java
-@@ -231,7 +231,7 @@ public final class NbtUtils {
+@@ -223,7 +223,7 @@ public final class NbtUtils {
              return Blocks.AIR.defaultBlockState();
          } else {
              // Paper start - Validate resource location

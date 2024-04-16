@@ -5,7 +5,7 @@ Subject: [PATCH] Add depth limit to Component deserialization
 
 
 diff --git a/src/main/java/net/minecraft/network/chat/Component.java b/src/main/java/net/minecraft/network/chat/Component.java
-index d3a80d0a23be762c05931ae8001d98e43cab2b4a..e747eddff10e1be2b503cbbf503a21e1de4569ba 100644
+index ae84d06564b2560e13404f6d89f88ad71dbc2cc6..df3c03aeaee5c12c5d57584535c9c7aa01be7dd3 100644
 --- a/src/main/java/net/minecraft/network/chat/Component.java
 +++ b/src/main/java/net/minecraft/network/chat/Component.java
 @@ -3,9 +3,11 @@ package net.minecraft.network.chat;

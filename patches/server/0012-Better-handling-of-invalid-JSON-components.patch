@@ -23,10 +23,10 @@ index e028353e0261310afc42ca0454b723d9f1ffc131..ed8810319db2ce754245193a62ea7a9a
      }
  }
 diff --git a/src/main/java/net/minecraft/network/chat/Component.java b/src/main/java/net/minecraft/network/chat/Component.java
-index e747eddff10e1be2b503cbbf503a21e1de4569ba..df3c03aeaee5c12c5d57584535c9c7aa01be7dd3 100644
+index d3a80d0a23be762c05931ae8001d98e43cab2b4a..ae84d06564b2560e13404f6d89f88ad71dbc2cc6 100644
 --- a/src/main/java/net/minecraft/network/chat/Component.java
 +++ b/src/main/java/net/minecraft/network/chat/Component.java
-@@ -378,6 +378,26 @@ public interface Component extends Message, FormattedText, Iterable<Component> {
+@@ -315,6 +315,26 @@ public interface Component extends Message, FormattedText, Iterable<Component> {
              return json == null ? null : Serializer.deserialize(json);
          }
  
@@ -84,7 +84,7 @@ index c5673657ca6332147a5cbd2f4107fee13b9b7f47..3fec6f3e0adef6e2094157ef9040c7c6
                      }
                  }).reduce((accumulator, current) -> accumulator.append(component).append(current)).orElseGet(Component::empty);
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index aec4991e8bd75c0020029008951e4cc2a83ed2b2..36b1a1cc66b9852d3b10c09cbf39262f51996663 100644
+index 637478fd8a284e6833cf8f5fa17ccf9d73d1dd3f..2ecf2d8ff546ed097cb3b547db22d28a31d29ec4 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -2545,11 +2545,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S

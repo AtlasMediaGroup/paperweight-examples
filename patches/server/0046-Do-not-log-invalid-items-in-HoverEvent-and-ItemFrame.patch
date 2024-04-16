@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Mon, 15 Apr 2024 22:26:14 -0500
+Subject: [PATCH] Do not log invalid items in HoverEvent and ItemFrame
+
+
+diff --git a/src/main/java/net/minecraft/network/chat/HoverEvent.java b/src/main/java/net/minecraft/network/chat/HoverEvent.java
+index 433e586bed53a8c17adec74b3088899c748d4be3..a82b4e39c3160114aded3f33c85fad2e95065b72 100644
+--- a/src/main/java/net/minecraft/network/chat/HoverEvent.java
++++ b/src/main/java/net/minecraft/network/chat/HoverEvent.java
+@@ -261,7 +261,7 @@ public class HoverEvent {
+                 CompoundTag compoundTag = TagParser.parseTag(text.getString());
+                 return DataResult.success(new HoverEvent.ItemStackInfo(ItemStack.of(compoundTag)));
+             } catch (CommandSyntaxException var2) {
+-                return DataResult.error(() -> "Failed to parse item tag: " + var2.getMessage());
++                return null;
+             }
+         }
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java b/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java
+index c34701f95580e4cf45fe086115563127432a28c5..fc7547381a5dd7c0aae352c0cae72a980953b98f 100644
+--- a/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java
++++ b/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java
+@@ -436,7 +436,7 @@ public class ItemFrame extends HangingEntity {
+             ItemStack itemstack = ItemStack.of(nbttagcompound1);
+ 
+             if (itemstack.isEmpty()) {
+-                ItemFrame.LOGGER.warn("Unable to load item from: {}", nbttagcompound1);
++                // Scissors - ignore invalid items
+             }
+ 
+             ItemStack itemstack1 = this.getItem();

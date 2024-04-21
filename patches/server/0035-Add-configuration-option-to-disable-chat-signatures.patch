@@ -60,7 +60,7 @@ index 0af9ed92824ccf30814eceb6a2c2e5c12661c991..c92374104b4aed2f952b250c5559ab9c
                      }
  
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index adbb1036913ba6299f2093c84480e4147a36b344..8d5f4f2a0589c9c34dcff0ca95b6222b90f7d09a 100644
+index 80f0f88258770862f419e4faba4cfca4c0457b2c..c0aa9520d547d6d77169fd1dbb02844b90ef4a1d 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -1,5 +1,6 @@
@@ -95,7 +95,7 @@ index adbb1036913ba6299f2093c84480e4147a36b344..8d5f4f2a0589c9c34dcff0ca95b6222b
                  ServerGamePacketListenerImpl.LOGGER.warn("Failed to validate message acknowledgements from {}", this.player.getName().getString());
                  this.disconnect(ServerGamePacketListenerImpl.CHAT_VALIDATION_FAILED, org.bukkit.event.player.PlayerKickEvent.Cause.CHAT_VALIDATION_FAILED); // Paper - kick event causes
              }
-@@ -3460,6 +3463,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+@@ -3473,6 +3476,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
      @Override
      public void handleChatSessionUpdate(ServerboundChatSessionUpdatePacket packet) {
          PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel());

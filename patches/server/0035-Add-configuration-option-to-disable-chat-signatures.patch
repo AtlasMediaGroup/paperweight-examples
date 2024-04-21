@@ -5,7 +5,7 @@ Subject: [PATCH] Add configuration option to disable chat signatures
 
 
 diff --git a/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java b/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java
-index c87b708c368713a23a10ad97704575ee4df27891..a650bdccc7f8fe77abe2750c9939f5eb0ccfd57b 100644
+index c87b708c368713a23a10ad97704575ee4df27891..4a8ab800d4a974aaf14872d50dcf01c806a0fe3b 100644
 --- a/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java
 +++ b/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java
 @@ -1,5 +1,6 @@
@@ -15,7 +15,7 @@ index c87b708c368713a23a10ad97704575ee4df27891..a650bdccc7f8fe77abe2750c9939f5eb
  import net.minecraft.server.level.ServerPlayer;
  
  public interface OutgoingChatMessage {
-@@ -46,9 +47,20 @@ public interface OutgoingChatMessage {
+@@ -46,9 +47,19 @@ public interface OutgoingChatMessage {
              // Paper end
              PlayerChatMessage playerChatMessage = this.message.filter(filterMaskEnabled);
              playerChatMessage = unsigned != null ? playerChatMessage.withUnsignedContent(unsigned) : playerChatMessage; // Paper
@@ -30,8 +30,7 @@ index c87b708c368713a23a10ad97704575ee4df27891..a650bdccc7f8fe77abe2750c9939f5eb
 +                null,
 +                SignedMessageBody.unsigned(playerChatMessage.signedContent()),
 +                unsigned,
-+                playerChatMessage.filterMask(),
-+                playerChatMessage.result()
++                playerChatMessage.filterMask()
 +            ), params);
 +            // Scissors end
          }

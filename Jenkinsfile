@@ -20,7 +20,6 @@ pipeline {
                     #!/bin/sh
                     BRANCH=\$(echo "\${BRANCH_NAME}" | sed 's/\\//_/g')
                     mv \${WORKSPACE}/build/libs/Scissors-bundler-*.jar \${WORKSPACE}/build/libs/scissors-\${BRANCH}-\${BUILD_NUMBER}.jar
-                    rm \${WORKSPACE}/build/libs/Scissors-*-SNAPSHOT.jar
                     """
             }
         }

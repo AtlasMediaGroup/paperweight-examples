@@ -14,13 +14,13 @@ pipeline {
         stage('paperclipJar') {
             steps {
                 withGradle {
-                    sh './gradlew createReobfPaperclipJar --no-daemon --refresh-dependencies'
+                    sh './gradlew createMojmapBundlerJar --no-daemon --refresh-dependencies'
                 }
                 sh """
                     #!/bin/sh
                     BRANCH=\$(echo "\${BRANCH_NAME}" | sed 's/\\//_/g')
-                    mv \${WORKSPACE}/build/libs/Scissors-paperclip-*.jar \${WORKSPACE}/build/libs/scissors-\${BRANCH}-\${BUILD_NUMBER}.jar
-                    rm \${WORKSPACE}/build/libs/Scissors-bundler-*.jar
+                    mv \${WORKSPACE}/build/libs/Scissors-bundler-*.jar \${WORKSPACE}/build/libs/scissors-\${BRANCH}-\${BUILD_NUMBER}.jar
+                    rm \${WORKSPACE}/build/libs/Scissors-*-SNAPSHOT.jar
                     """
             }
         }

@@ -4,6 +4,19 @@ Date: Sun, 5 May 2024 12:31:13 -0500
 Subject: [PATCH] Fixes log spam
 
 
+diff --git a/src/main/java/net/minecraft/network/chat/HoverEvent.java b/src/main/java/net/minecraft/network/chat/HoverEvent.java
+index d8de9ec38f5e5b10c177895728815d8659d0b601..d141a39f98f58c5d61e25cab89e742845ca8185b 100644
+--- a/src/main/java/net/minecraft/network/chat/HoverEvent.java
++++ b/src/main/java/net/minecraft/network/chat/HoverEvent.java
+@@ -271,7 +271,7 @@ public class HoverEvent {
+                 DynamicOps<Tag> dynamicOps = (DynamicOps<Tag>)(ops != null ? ops.withParent(NbtOps.INSTANCE) : NbtOps.INSTANCE);
+                 return ItemStack.CODEC.parse(dynamicOps, compoundTag).map(HoverEvent.ItemStackInfo::new);
+             } catch (CommandSyntaxException var4) {
+-                return DataResult.error(() -> "Failed to parse item tag: " + var4.getMessage());
++                return null;
+             }
+         }
+     }
 diff --git a/src/main/java/net/minecraft/world/entity/AreaEffectCloud.java b/src/main/java/net/minecraft/world/entity/AreaEffectCloud.java
 index ee972fa1a2bc023ed18eaceae21c8c8244754e6a..4f92d9c5850156c2349371d801a96a477f1af96c 100644
 --- a/src/main/java/net/minecraft/world/entity/AreaEffectCloud.java

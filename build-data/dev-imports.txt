@@ -10,3 +10,5 @@
 #     minecraft net/minecraft/world/level/entity/LevelEntityGetter.java
 minecraft net.minecraft.network.chat.FormattedText
 minecraft net.minecraft.network.chat.contents.TranslatableContents.java
+minecraft net.minecraft.network.chat.HoverEvent
+minecraft net.minecraft.world.item.KnowledgeBookItem

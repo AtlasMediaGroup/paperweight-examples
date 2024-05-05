@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Sun, 5 May 2024 12:47:29 -0500
+Subject: [PATCH] Fixes Knowledge Books causing log spam when invalid data is
+ provided
+
+
+diff --git a/src/main/java/net/minecraft/world/item/KnowledgeBookItem.java b/src/main/java/net/minecraft/world/item/KnowledgeBookItem.java
+index 635936aaac2426de05f0450f10815b29b52ca617..0b122b281c195ca47e7eeb27be29bffd916a8535 100644
+--- a/src/main/java/net/minecraft/world/item/KnowledgeBookItem.java
++++ b/src/main/java/net/minecraft/world/item/KnowledgeBookItem.java
+@@ -38,9 +38,9 @@ public class KnowledgeBookItem extends Item {
+                 List<RecipeHolder<?>> list2 = new ArrayList<>(list.size());
+ 
+                 for (ResourceLocation resourceLocation : list) {
+-                    Optional<RecipeHolder<?>> optional = recipeManager.byKey(resourceLocation);
++                    Optional<RecipeHolder<?>> optional = recipeManager.byKey(ResourceLocation.tryParse(resourceLocation.getNamespace())); // Scissors - Validate resource location
+                     if (!optional.isPresent()) {
+-                        LOGGER.error("Invalid recipe: {}", resourceLocation);
++                        // Scissors - don't log errors caused by invalid recipes being provided
+                         return InteractionResultHolder.fail(itemStack);
+                     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaKnowledgeBook.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaKnowledgeBook.java
+index 20638aa593e0a6c78e4bfdb936e69f3d36e18f4e..00b877fb43a8793a0f07580be93d026b624ad011 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaKnowledgeBook.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaKnowledgeBook.java
+@@ -38,7 +38,12 @@ public class CraftMetaKnowledgeBook extends CraftMetaItem implements KnowledgeBo
+             for (int i = 0; i < pages.size(); i++) {
+                 ResourceLocation recipe = pages.get(i);
+ 
+-                this.addRecipe(CraftNamespacedKey.fromMinecraft(recipe));
++                // Scissors start - Don't add recipes with invalid namespaces
++                try {
++                    this.addRecipe(CraftNamespacedKey.fromMinecraft(recipe));
++                } catch (Exception ignored)
++                {}
++                // Scissors end
+             }
+         });
+     }

@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Sun, 5 May 2024 12:16:30 -0500
+Subject: [PATCH] UUID validation
+
+
+diff --git a/src/main/java/net/minecraft/network/chat/HoverEvent.java b/src/main/java/net/minecraft/network/chat/HoverEvent.java
+index 1a958f994365eb8f2e010d703046fb73e04b66e4..d8de9ec38f5e5b10c177895728815d8659d0b601 100644
+--- a/src/main/java/net/minecraft/network/chat/HoverEvent.java
++++ b/src/main/java/net/minecraft/network/chat/HoverEvent.java
+@@ -171,7 +171,14 @@ public class HoverEvent {
+                 DynamicOps<JsonElement> dynamicOps = (DynamicOps<JsonElement>)(ops != null ? ops.withParent(JsonOps.INSTANCE) : JsonOps.INSTANCE);
+                 DataResult<Component> dataResult = ComponentSerialization.CODEC.parse(dynamicOps, JsonParser.parseString(compoundTag.getString("name")));
+                 EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(compoundTag.getString("type")));
+-                UUID uUID = UUID.fromString(compoundTag.getString("id"));
++                // Scissors start
++                UUID uUID;
++                try {
++                    uUID = UUID.fromString(compoundTag.getString("id"));
++                } catch (Exception ex) {
++                    return null;
++                }
++                // Scissors end
+                 return dataResult.map(textx -> new HoverEvent.EntityTooltipInfo(entityType, uUID, textx));
+             } catch (Exception var7) {
+                 return DataResult.error(() -> "Failed to parse tooltip: " + var7.getMessage());

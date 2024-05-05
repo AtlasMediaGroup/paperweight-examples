@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Sun, 5 May 2024 12:32:55 -0500
+Subject: [PATCH] Ignore errors thrown when trying to remove minecart entities
+ with content in them
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
+index 2704389bc3ec6dbbf1b568a4380972f8c0d62d15..508275ec947826bc14b1671c2ae29d9804a811f2 100644
+--- a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
++++ b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
+@@ -148,8 +148,14 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+     @Override
+     public void remove(Entity.RemovalReason entity_removalreason, EntityRemoveEvent.Cause cause) {
+         // CraftBukkit end
+-        if (!this.level().isClientSide && entity_removalreason.shouldDestroy()) {
+-            Containers.dropContents(this.level(), (Entity) this, (Container) this);
++        if (!this.level().isClientSide && entity_removalreason.shouldDestroy())
++        {
++            // Scissors start - Ignore errors thrown when trying to remove Minecart entities with content in them
++            try {
++                Containers.dropContents(this.level(), (Entity) this, (Container) this);
++            } catch (Exception ignored)
++            {}
++            // Scissors end
+         }
+ 
+         super.remove(entity_removalreason, cause); // CraftBukkit - add Bukkit remove cause

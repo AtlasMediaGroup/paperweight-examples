@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Sun, 5 May 2024 12:31:13 -0500
+Subject: [PATCH] Fixes log spam
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/AreaEffectCloud.java b/src/main/java/net/minecraft/world/entity/AreaEffectCloud.java
+index ee972fa1a2bc023ed18eaceae21c8c8244754e6a..4f92d9c5850156c2349371d801a96a477f1af96c 100644
+--- a/src/main/java/net/minecraft/world/entity/AreaEffectCloud.java
++++ b/src/main/java/net/minecraft/world/entity/AreaEffectCloud.java
+@@ -385,7 +385,7 @@ public class AreaEffectCloud extends Entity implements TraceableEntity {
+ 
+         if (nbt.contains("Particle", 10)) {
+             ParticleTypes.CODEC.parse(registryops, nbt.get("Particle")).resultOrPartial((s) -> {
+-                AreaEffectCloud.LOGGER.warn("Failed to parse area effect cloud particle options: '{}'", s);
++                // Scissors - Don't log custom particle errors
+             }).ifPresent(this::setParticle);
+         }
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/EntityType.java b/src/main/java/net/minecraft/world/entity/EntityType.java
+index a46bf73c608641bf1f00fd55242de71a0f2ee06e..06a4a1cb9e46b3981629f1f8c4a0028c407ce234 100644
+--- a/src/main/java/net/minecraft/world/entity/EntityType.java
++++ b/src/main/java/net/minecraft/world/entity/EntityType.java
+@@ -603,7 +603,7 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
+             if (generation) entity.generation = true; // Paper - Don't fire sync event during generation
+             entity.load(nbt);
+         }, () -> {
+-            EntityType.LOGGER.warn("Skipping Entity with id {}", nbt.getString("id"));
++            // Scissors - Don't log invalid entities
+         });
+     }
+ 

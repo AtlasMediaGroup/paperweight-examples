@@ -2,7 +2,7 @@ plugins {
     java
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "8.1.1" apply false
-    id("io.papermc.paperweight.patcher") version "1.6.3"
+    id("io.papermc.paperweight.patcher") version "1.7.0"
 }
 
 val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
@@ -15,8 +15,8 @@ repositories {
 }
 
 dependencies {
-    remapper("net.fabricmc:tiny-remapper:0.8.11:fat")
-    decompiler("net.minecraftforge:forgeflower:2.0.629.1")
+    remapper("net.fabricmc:tiny-remapper:0.10.1:fat")
+    decompiler("net.minecraftforge:forgeflower:2.0.674.2")
     paperclip("io.papermc:paperclip:3.0.4-SNAPSHOT")
 }
 

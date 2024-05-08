@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Wed, 8 May 2024 12:48:19 -0500
+Subject: [PATCH] Fix negative death times
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index 6e043457a29a890bcefd27fc5bb07c1a7e4e30f7..8ff815b1bb77eab735c65fa9c6bf469dca8562c4 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -650,7 +650,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+ 
+     protected void tickDeath() {
+         ++this.deathTime;
+-        if (this.deathTime >= 20 && !this.level().isClientSide() && !this.isRemoved()) {
++        if ((this.deathTime >= 20 || this.deathTime <= 0) && !this.level().isClientSide() && !this.isRemoved()) { // Scissors
+             this.level().broadcastEntityEvent(this, (byte) 60);
+             this.remove(Entity.RemovalReason.KILLED, EntityRemoveEvent.Cause.DEATH); // CraftBukkit - add Bukkit remove cause
+         }

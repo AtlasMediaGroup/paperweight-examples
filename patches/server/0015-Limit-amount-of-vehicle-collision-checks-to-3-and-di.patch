@@ -51,7 +51,7 @@ index 4d7454e5a64fc18e63793a221daa94617f17c666..0ebc9b469d684251ba73989b3f748352
              } else {
                  Iterator iterator1 = this.level().getEntities(this, this.getBoundingBox().inflate(0.20000000298023224D, 0.0D, 0.20000000298023224D)).iterator();
 diff --git a/src/main/java/net/minecraft/world/entity/vehicle/Boat.java b/src/main/java/net/minecraft/world/entity/vehicle/Boat.java
-index b068cff9b5aa457d65b679529956e8210296d799..9efea76afdbe653d8071936d553aea3b31d4f8e3 100644
+index b068cff9b5aa457d65b679529956e8210296d799..8274154f2ce4a752ea49790c6526ecb353934a04 100644
 --- a/src/main/java/net/minecraft/world/entity/vehicle/Boat.java
 +++ b/src/main/java/net/minecraft/world/entity/vehicle/Boat.java
 @@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
@@ -89,7 +89,7 @@ index b068cff9b5aa457d65b679529956e8210296d799..9efea76afdbe653d8071936d553aea3b
              }
 +            // Scissors start - Add collision debounce
 +            if (list.size() > 15) {
-+                this.discard();
++                this.discard(null);
 +            } else if (list.size() > 3) {
 +                lastLargeCollision = System.currentTimeMillis();
 +            }

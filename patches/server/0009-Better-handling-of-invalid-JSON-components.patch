@@ -1,0 +1,133 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Wed, 8 May 2024 12:15:48 -0500
+Subject: [PATCH] Better handling of invalid JSON components
+
+
+diff --git a/src/main/java/net/minecraft/network/chat/Component.java b/src/main/java/net/minecraft/network/chat/Component.java
+index 6dcade427f19771b08e04cfa036dedcfac30b5cd..3b075dcb6bda40b278296fc8750f2af90c13acc4 100644
+--- a/src/main/java/net/minecraft/network/chat/Component.java
++++ b/src/main/java/net/minecraft/network/chat/Component.java
+@@ -23,6 +23,8 @@ import java.util.List;
+ import java.util.Optional;
+ import java.util.UUID;
+ import javax.annotation.Nullable;
++
++import net.minecraft.ChatFormatting;
+ import net.minecraft.core.HolderLookup;
+ import net.minecraft.network.chat.contents.DataSource;
+ import net.minecraft.network.chat.contents.KeybindContents;
+@@ -311,6 +313,26 @@ public interface Component extends Message, FormattedText, Iterable<Component> {
+             return json == null ? null : Serializer.deserialize(json, registries);
+         }
+ 
++        // Scissors start
++        @Nullable
++        public static MutableComponent fromJsonSafe(String json, HolderLookup.Provider registries) {
++            try {
++                return fromJson(json, registries);
++            } catch (Exception ex) {
++                return Component.empty().append("** Invalid JSON Component **").withStyle(ChatFormatting.RED);
++            }
++        }
++
++        @Nullable
++        public static MutableComponent fromJsonSafe(JsonElement json, HolderLookup.Provider registries) {
++            try {
++                return fromJson(json, registries);
++            } catch (Exception ex) {
++                return Component.empty().append("** Invalid JSON Component **").withStyle(ChatFormatting.RED);
++            }
++        }
++        // Scissors end
++
+         @Nullable
+         public static MutableComponent fromJsonLenient(String json, HolderLookup.Provider registries) {
+             JsonReader jsonreader = new JsonReader(new StringReader(json));
+diff --git a/src/main/java/net/minecraft/network/chat/contents/NbtContents.java b/src/main/java/net/minecraft/network/chat/contents/NbtContents.java
+index df26c39a2bb20e2021b50211dce905483a77f4e6..0b85d5aef65fdb08c1c11f0ebb973078b57e5773 100644
+--- a/src/main/java/net/minecraft/network/chat/contents/NbtContents.java
++++ b/src/main/java/net/minecraft/network/chat/contents/NbtContents.java
+@@ -124,10 +124,10 @@ public class NbtContents implements ComponentContents {
+                 );
+                 return stream.flatMap(text -> {
+                     try {
+-                        MutableComponent mutableComponent = Component.Serializer.fromJson(text, source.registryAccess());
++                        MutableComponent mutableComponent = Component.Serializer.fromJsonSafe(text, source.registryAccess()); // Scissors
+                         return Stream.of(ComponentUtils.updateForEntity(source, mutableComponent, sender, depth));
+                     } catch (Exception var5x) {
+-                        LOGGER.warn("Failed to parse component: {}", text, var5x);
++                        // Scissors - don't log
+                         return Stream.of();
+                     }
+                 }).reduce((accumulator, current) -> accumulator.append(component).append(current)).orElseGet(Component::empty);
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 2bc85351e6e52f90da5fdb29d8d042a06132d742..514c0a8842852bf73eac2e28e12834021164c93c 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -2603,12 +2603,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+                     this.setRot(this.getYRot(), this.getXRot());
+                     if (nbt.contains("CustomName", 8)) {
+                         String s = nbt.getString("CustomName");
+-
+-                        try {
+-                            this.setCustomName(Component.Serializer.fromJson(s, this.registryAccess()));
+-                        } catch (Exception exception) {
+-                            Entity.LOGGER.warn("Failed to parse entity custom name {}", s, exception);
+-                        }
++                        this.setCustomName(Component.Serializer.fromJsonSafe(s, this.registryAccess())); // Scissors - Use safer method for getting Components from JSON
+                     }
+ 
+                     this.setCustomNameVisible(nbt.getBoolean("CustomNameVisible"));
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java
+index 6349f2e0a5ba30d250f5ffe43771f325c0999a76..ad6ba965da83cb328726f5f6e1d5df06015b7c42 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java
+@@ -362,7 +362,7 @@ public abstract class BlockEntity {
+     @Nullable
+     public static Component parseCustomNameSafe(String json, HolderLookup.Provider registryLookup) {
+         try {
+-            return Component.Serializer.fromJson(json, registryLookup);
++            return Component.Serializer.fromJsonSafe(json, registryLookup); // Scissors
+         } catch (Exception exception) {
+             BlockEntity.LOGGER.warn("Failed to parse custom name from string '{}', discarding", json, exception);
+             return null;
+diff --git a/src/main/java/net/minecraft/world/scores/ScoreboardSaveData.java b/src/main/java/net/minecraft/world/scores/ScoreboardSaveData.java
+index b679bbdfa307d3aa9f2f5e4c70c559695b2733de..4c195b56b956b31028c4f51453d6e9bf31cada0c 100644
+--- a/src/main/java/net/minecraft/world/scores/ScoreboardSaveData.java
++++ b/src/main/java/net/minecraft/world/scores/ScoreboardSaveData.java
+@@ -42,7 +42,7 @@ public class ScoreboardSaveData extends SavedData {
+             CompoundTag compoundTag = nbt.getCompound(i);
+             String string = compoundTag.getString("Name");
+             PlayerTeam playerTeam = this.scoreboard.addPlayerTeam(string);
+-            Component component = Component.Serializer.fromJson(compoundTag.getString("DisplayName"), registries);
++            Component component = Component.Serializer.fromJsonSafe(compoundTag.getString("DisplayName"), registries); // Scissors - Use safer method for getting Components from JSON
+             if (component != null) {
+                 playerTeam.setDisplayName(component);
+             }
+@@ -60,14 +60,14 @@ public class ScoreboardSaveData extends SavedData {
+             }
+ 
+             if (compoundTag.contains("MemberNamePrefix", 8)) {
+-                Component component2 = Component.Serializer.fromJson(compoundTag.getString("MemberNamePrefix"), registries);
++                Component component2 = Component.Serializer.fromJsonSafe(compoundTag.getString("MemberNamePrefix"), registries); // Scissors - Use safer method for getting Components from JSON
+                 if (component2 != null) {
+                     playerTeam.setPlayerPrefix(component2);
+                 }
+             }
+ 
+             if (compoundTag.contains("MemberNameSuffix", 8)) {
+-                Component component3 = Component.Serializer.fromJson(compoundTag.getString("MemberNameSuffix"), registries);
++                Component component3 = Component.Serializer.fromJsonSafe(compoundTag.getString("MemberNameSuffix"), registries); // Scissors - Use safer method for getting Components from JSON
+                 if (component3 != null) {
+                     playerTeam.setPlayerSuffix(component3);
+                 }
+@@ -124,7 +124,7 @@ public class ScoreboardSaveData extends SavedData {
+                 return ObjectiveCriteria.DUMMY;
+             });
+             String string2 = compoundTag.getString("Name");
+-            Component component = Component.Serializer.fromJson(compoundTag.getString("DisplayName"), registries);
++            Component component = Component.Serializer.fromJsonSafe(compoundTag.getString("DisplayName"), registries); // Scissors - Use safer method for getting Components from JSON
+             ObjectiveCriteria.RenderType renderType = ObjectiveCriteria.RenderType.byId(compoundTag.getString("RenderType"));
+             boolean bl = compoundTag.getBoolean("display_auto_update");
+             NumberFormat numberFormat = NumberFormatTypes.CODEC

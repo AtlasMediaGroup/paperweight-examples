@@ -13,3 +13,8 @@ minecraft net.minecraft.network.chat.contents.TranslatableContents.java
 minecraft net.minecraft.network.chat.HoverEvent
 minecraft net.minecraft.world.item.KnowledgeBookItem
 minecraft net.minecraft.network.chat.contents.NbtContents
+minecraft net.minecraft.network.chat.contents.EntityDataSource
+minecraft net.minecraft.network.chat.contents.DataSource
+minecraft net.minecraft.nbt.SnbtPrinterTagVisitor
+minecraft net.minecraft.nbt.StringTagVisitor
+minecraft net.minecraft.nbt.TextComponentTagVisitor

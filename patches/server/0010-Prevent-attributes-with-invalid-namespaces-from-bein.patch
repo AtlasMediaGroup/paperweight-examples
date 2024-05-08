@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Wed, 8 May 2024 12:26:49 -0500
+Subject: [PATCH] Prevent attributes with invalid namespaces from being applied
+ to CraftMetaItems
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
+index ab23597a099a2785c803e08c93ff9f046a4af677..8fa0557cbf17fee958da9bd8d09a51748282a980 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
+@@ -50,6 +50,7 @@ import net.minecraft.nbt.NbtIo;
+ import net.minecraft.nbt.NbtOps;
+ import net.minecraft.nbt.Tag;
+ import net.minecraft.network.chat.Component;
++import net.minecraft.resources.ResourceLocation;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.util.Unit;
+ import net.minecraft.world.entity.EquipmentSlotGroup;
+@@ -734,7 +735,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+                 continue;
+             }
+             String attributeName = (String) obj;
+-            if (Strings.isNullOrEmpty(attributeName)) {
++            if (Strings.isNullOrEmpty(attributeName) || attributeName.length() > 256 || !ResourceLocation.isValidResourceLocation(attributeName)) { // Scissors
+                 continue;
+             }
+             List<?> list = SerializableMeta.getObject(List.class, mods, attributeName, true);

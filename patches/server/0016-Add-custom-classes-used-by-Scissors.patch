@@ -1,0 +1,182 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Wed, 8 May 2024 13:01:45 -0500
+Subject: [PATCH] Add custom classes used by Scissors
+
+
+diff --git a/src/main/java/me/totalfreedom/scissors/MathUtility.java b/src/main/java/me/totalfreedom/scissors/MathUtility.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..754b578b575137a9c48cb20dee965a9388fedb3c
+--- /dev/null
++++ b/src/main/java/me/totalfreedom/scissors/MathUtility.java
+@@ -0,0 +1,29 @@
++package me.totalfreedom.scissors;
++
++public class MathUtility
++{
++    public static int clampInt(int number, int minimum, int maximum)
++    {
++        return Math.min(Math.max(number, minimum), maximum);
++    }
++
++    public static long clampLong(long number, long minimum, long maximum)
++    {
++        return Math.min(Math.max(number, minimum), maximum);
++    }
++
++    public static double clampDouble(double number, double minimum, double maximum)
++    {
++        return Math.min(Math.max(number, minimum), maximum);
++    }
++
++    public static int safeDoubleToInt(double number)
++    {
++        return (int) clampDouble(number, Integer.MIN_VALUE, Integer.MAX_VALUE);
++    }
++
++    public static int safeLongToInt(long number)
++    {
++        return (int) clampLong(number, Integer.MIN_VALUE, Integer.MAX_VALUE);
++    }
++}
+diff --git a/src/main/java/me/totalfreedom/scissors/NbtUtility.java b/src/main/java/me/totalfreedom/scissors/NbtUtility.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..9ad690056bffd9e85e469c5a54dffa3e1e13db5a
+--- /dev/null
++++ b/src/main/java/me/totalfreedom/scissors/NbtUtility.java
+@@ -0,0 +1,76 @@
++package me.totalfreedom.scissors;
++
++import net.minecraft.nbt.CompoundTag;
++import net.minecraft.nbt.ListTag;
++import net.minecraft.nbt.Tag;
++
++import javax.annotation.Nullable;
++import java.nio.charset.StandardCharsets;
++
++public class NbtUtility
++{
++    public static final long MAXIMUM_SIZE = (256 * 1024);
++
++    public static long getTagSize(@Nullable Tag tag, int depth)
++    {
++        if (depth > 512)
++        {
++            return 0;
++        }
++        if (tag == null)
++        {
++            return 0;
++        }
++
++        long size = 0;
++
++        if (tag.getType() == CompoundTag.TYPE)
++        {
++            CompoundTag compoundTag = (CompoundTag) tag;
++            for (String key : compoundTag.getAllKeys())
++            {
++                size += key.getBytes(StandardCharsets.UTF_8).length;
++                size += getTagSize(compoundTag.get(key), depth + 1);
++            }
++        }
++        else if (tag.getType() == ListTag.TYPE)
++        {
++            ListTag listTag = (ListTag) tag;
++            for (Tag tag1 : listTag)
++            {
++                size += getTagSize(tag1, depth + 1);
++            }
++        }
++        else
++        {
++            size += tag.getAsString().getBytes(StandardCharsets.UTF_8).length;
++        }
++
++        return size;
++    }
++
++    public static long getTagSize(@Nullable CompoundTag tag)
++    {
++        return getTagSize(tag, 0);
++    }
++
++    public static boolean isTooLarge(@Nullable CompoundTag tag)
++    {
++        if (tag == null)
++        {
++            return false;
++        }
++        return getTagSize(tag) > MAXIMUM_SIZE;
++    }
++
++    public static class Item
++    {
++        public static CompoundTag removeItemData(CompoundTag tag)
++        {
++            CompoundTag cleaned = new CompoundTag();
++            cleaned.putString("id", tag.getString("id"));
++            cleaned.putByte("Count", tag.getByte("Count"));
++            return cleaned;
++        }
++    }
++}
+diff --git a/src/main/java/me/totalfreedom/scissors/PositionUtility.java b/src/main/java/me/totalfreedom/scissors/PositionUtility.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c5dcc833d6f2c0daa1d0c2a7ab81430f25e0b2f3
+--- /dev/null
++++ b/src/main/java/me/totalfreedom/scissors/PositionUtility.java
+@@ -0,0 +1,53 @@
++package me.totalfreedom.scissors;
++
++import net.minecraft.core.BlockPos;
++import net.minecraft.world.entity.Entity;
++import net.minecraft.world.level.Level;
++import net.minecraft.world.level.border.WorldBorder;
++import net.minecraft.world.phys.Vec3;
++
++public class PositionUtility
++{
++
++    public static Vec3 getValidVec3FromBlockPos(BlockPos blockPos, Entity entity)
++    {
++        final BlockPos validBlockPos = getValidBlockPos(blockPos, entity);
++
++        return new Vec3(validBlockPos.getX(), validBlockPos.getY(), validBlockPos.getZ());
++    }
++
++    public static BlockPos getValidBlockPos(BlockPos blockPos, Entity entity)
++    {
++        final Level level = entity.level();
++
++        try
++        {
++            if (level.isInWorldBounds(blockPos))
++            {
++                return blockPos;
++            }
++            else
++            {
++                final int x = blockPos.getX();
++                final int y = blockPos.getY();
++                final int z = blockPos.getZ();
++
++                final WorldBorder worldBorder = level.getWorldBorder();
++
++                final int maxX = MathUtility.safeDoubleToInt(worldBorder.getMaxX());
++                final int maxY = level.getMaxBuildHeight();
++                final int maxZ = MathUtility.safeDoubleToInt(worldBorder.getMaxZ());
++
++                final int minX = MathUtility.safeDoubleToInt(worldBorder.getMinX());
++                final int minY = level.getMinBuildHeight();
++                final int minZ = MathUtility.safeDoubleToInt(worldBorder.getMinZ());
++
++                return new BlockPos(MathUtility.clampInt(x, minX, maxX), MathUtility.clampInt(y, minY, maxY), MathUtility.clampInt(z, minZ, maxZ));
++            }
++        }
++        catch (Exception e)
++        { // If we throw some sort of exception due to the position being crazy, catch it
++            return new BlockPos(0, 0, 0);
++        }
++    }
++}

@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Taah <admin@taah.dev>
+Date: Thu, 9 May 2024 23:29:27 -0700
+Subject: [PATCH] Prevent invalid container events
+
+
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 536d165dfd2fda60548dbc3806e51195c4b1cb54..b0aa09ca0ff536f3836ccb0671385b3c2602a93e 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.ObjectIterator;
+ import me.totalfreedom.scissors.event.player.SpectatorTeleportEvent;
++import net.kyori.adventure.text.format.NamedTextColor;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.Util;
+ import net.minecraft.advancements.AdvancementHolder;
+@@ -3465,6 +3466,18 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+                         return;
+                     }
+ 
++                    // Scissors start - Do not call events when the slot/button number is invalid
++                    final int sentSlotNum = packet.getSlotNum();
++                    if ((Mth.clamp(sentSlotNum, -1, this.player.containerMenu.slots.size() - 1) != sentSlotNum) && sentSlotNum != -999)
++                    {
++                        this.getCraftPlayer().kick(
++                            net.kyori.adventure.text.Component.text("Invalid container click slot (Hacking?)")
++                                .color(NamedTextColor.RED)
++                        );
++                        return;
++                    }
++                    // Scissors end
++
+                     InventoryView inventory = this.player.containerMenu.getBukkitView();
+                     SlotType type = inventory.getSlotType(packet.getSlotNum());
+ 

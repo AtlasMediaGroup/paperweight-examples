@@ -1,0 +1,78 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Taah <admin@taah.dev>
+Date: Thu, 9 May 2024 23:22:48 -0700
+Subject: [PATCH] Add MasterBlockFireEvent
+
+
+diff --git a/src/main/java/net/minecraft/world/level/block/CommandBlock.java b/src/main/java/net/minecraft/world/level/block/CommandBlock.java
+index ec1a8c60ccac50e5131f937c4262128fd2768331..1c5b814ccd454b40f1bf516fced1951ca68f8be9 100644
+--- a/src/main/java/net/minecraft/world/level/block/CommandBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/CommandBlock.java
+@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
+ import com.mojang.serialization.Codec;
+ import com.mojang.serialization.MapCodec;
+ import com.mojang.serialization.codecs.RecordCodecBuilder;
++import me.totalfreedom.scissors.event.block.MasterBlockFireEvent;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.core.component.DataComponents;
+@@ -27,6 +28,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+ import net.minecraft.world.level.block.state.properties.BooleanProperty;
+ import net.minecraft.world.level.block.state.properties.DirectionProperty;
+ import net.minecraft.world.phys.BlockHitResult;
++import org.bukkit.Location;
+ import org.slf4j.Logger;
+ 
+ import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
+@@ -128,6 +130,14 @@ public class CommandBlock extends BaseEntityBlock implements GameMasterBlock {
+     }
+ 
+     private void execute(BlockState state, Level world, BlockPos pos, BaseCommandBlock executor, boolean hasCommand) {
++        // Scissors start - Add master block fire event
++        final MasterBlockFireEvent event = new MasterBlockFireEvent(new Location(world.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
++        if (!event.callEvent())
++        {
++            return;
++        }
++        // Scissors end
++
+         if (hasCommand) {
+             executor.performCommand(world);
+         } else {
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/JigsawBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/JigsawBlockEntity.java
+index 922592f2073eaea8ca361a3a1efcda8b18bea21c..16709cee77e1a16dfa7e58ec8956b4d68d0d7b33 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/JigsawBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/JigsawBlockEntity.java
+@@ -2,6 +2,8 @@ package net.minecraft.world.level.block.entity;
+ 
+ import java.util.Arrays;
+ import java.util.Optional;
++
++import me.totalfreedom.scissors.event.block.MasterBlockFireEvent;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Holder;
+ import net.minecraft.core.HolderLookup;
+@@ -18,6 +20,7 @@ import net.minecraft.world.level.block.JigsawBlock;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
+ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
++import org.bukkit.Location;
+ 
+ public class JigsawBlockEntity extends BlockEntity {
+     public static final String TARGET = "target";
+@@ -135,6 +138,15 @@ public class JigsawBlockEntity extends BlockEntity {
+     }
+ 
+     public void generate(ServerLevel world, int maxDepth, boolean keepJigsaws) {
++        // Scissors start - Add master block fire event
++        final BlockPos pos = this.getBlockPos();
++        final MasterBlockFireEvent event = new MasterBlockFireEvent(new Location(world.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
++        if (!event.callEvent())
++        {
++            return;
++        }
++        // Scissors end
++
+         BlockPos blockPos = this.getBlockPos().relative(this.getBlockState().getValue(JigsawBlock.ORIENTATION).front());
+         Registry<StructureTemplatePool> registry = world.registryAccess().registryOrThrow(Registries.TEMPLATE_POOL);
+         // Paper start - Replace getHolderOrThrow with a null check

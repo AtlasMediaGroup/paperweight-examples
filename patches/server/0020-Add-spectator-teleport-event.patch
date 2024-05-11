@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Sat, 11 May 2024 13:02:20 -0500
+Subject: [PATCH] Add spectator teleport event
+
+
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 5e9202bc7fc649764568b55d66ba0d684118c00c..31a6be18075723eb53fd1cbb664429e49909cf66 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -29,6 +29,8 @@ import java.util.function.Consumer;
+ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import me.totalfreedom.scissors.event.player.SpectatorTeleportEvent;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.Util;
+ import net.minecraft.advancements.AdvancementHolder;
+@@ -2033,6 +2035,12 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+                 Entity entity = packet.getEntity(worldserver);
+ 
+                 if (entity != null) {
++                    // Scissors start - Add spectator teleport event
++                    final SpectatorTeleportEvent event = new SpectatorTeleportEvent(this.player.getBukkitEntity(), entity.getBukkitEntity());
++                    if (!event.callEvent()) {
++                        return;
++                    }
++                    // Scissors end
+                     this.player.teleportTo(worldserver, entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot(), org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.SPECTATE); // CraftBukkit
+                     return;
+                 }

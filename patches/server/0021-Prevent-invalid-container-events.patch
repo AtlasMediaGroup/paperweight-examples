@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Sat, 11 May 2024 13:04:21 -0500
+Subject: [PATCH] Prevent invalid container events
+
+
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 31a6be18075723eb53fd1cbb664429e49909cf66..65284355b6fc97eb1967e5c6fd51bc5b018e3e29 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -31,6 +31,7 @@ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
+ 
+ import me.totalfreedom.scissors.event.player.SpectatorTeleportEvent;
++import net.kyori.adventure.text.format.NamedTextColor;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.Util;
+ import net.minecraft.advancements.AdvancementHolder;
+@@ -2981,6 +2982,18 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+                         return;
+                     }
+ 
++                    // Scissors start - Do not call events when the slot/button number is invalid
++                    final int sentSlotNum = packet.getSlotNum();
++                    if((Mth.clamp(sentSlotNum, -1, this.player.containerMenu.slots.size() - 1) != sentSlotNum) && sentSlotNum != -999)
++                    {
++                        this.getCraftPlayer().kick(
++                            net.kyori.adventure.text.Component.text("Invalid container click slot (Hacking?)")
++                                .color(NamedTextColor.RED)
++                        );
++                        return;
++                    }
++                    // Scissors end
++
+                     InventoryView inventory = this.player.containerMenu.getBukkitView();
+                     SlotType type = inventory.getSlotType(packet.getSlotNum());
+ 

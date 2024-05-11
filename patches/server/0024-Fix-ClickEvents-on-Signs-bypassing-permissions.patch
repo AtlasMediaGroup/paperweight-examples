@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Sat, 11 May 2024 13:11:20 -0500
+Subject: [PATCH] Fix ClickEvents on Signs bypassing permissions
+
+
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/SignBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/SignBlockEntity.java
+index a28be7a332659be655f419d969e0c64e659b6c21..7867f88fdb7ed0b644ab7c4e3c971d1164feea7a 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/SignBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/SignBlockEntity.java
+@@ -9,8 +9,11 @@ import java.util.Objects;
+ import java.util.UUID;
+ import java.util.function.UnaryOperator;
+ import javax.annotation.Nullable;
++
++import me.totalfreedom.scissors.ScissorsConfig;
+ import net.minecraft.commands.CommandSource;
+ import net.minecraft.commands.CommandSourceStack;
++import net.minecraft.commands.Commands;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.HolderLookup;
+ import net.minecraft.nbt.CompoundTag;
+@@ -21,6 +24,7 @@ import net.minecraft.network.chat.Component;
+ import net.minecraft.network.chat.ComponentUtils;
+ import net.minecraft.network.chat.Style;
+ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
++import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.server.network.FilteredText;
+@@ -34,6 +38,8 @@ import net.minecraft.world.level.block.SignBlock;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.phys.Vec2;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.CraftServer;
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
+ import org.slf4j.Logger;
+ import org.bukkit.block.sign.Side;
+ import org.bukkit.craftbukkit.block.CraftBlock;
+@@ -290,6 +296,19 @@ public class SignBlockEntity extends BlockEntity implements CommandSource { // C
+                 }
+                 player.getServer().getCommands().performPrefixedCommand(this.createCommandSourceStack(((org.bukkit.craftbukkit.entity.CraftPlayer) event.getPlayer()).getHandle(), world, pos), event.getMessage());
+                 // Paper end - Fix commands from signs not firing command events
++                // Scissors start - Add optional permissions to command signs
++                final MinecraftServer vanillaServer = player.getServer();
++                final CraftServer craftServer = vanillaServer.server;
++                final CraftHumanEntity craftPlayer = player.getBukkitEntity();
++                final Commands commands = vanillaServer.getCommands();
++
++                if (ScissorsConfig.commandSignsBypassPermissions) {
++                    commands.performPrefixedCommand(this.createCommandSourceStack(((org.bukkit.craftbukkit.entity.CraftPlayer) event.getPlayer()).getHandle(), world, pos), event.getMessage());
++                }
++                else {
++                    craftServer.dispatchCommand(craftPlayer, command.substring(1));
++                }
++                // Scissors end
+                 flag1 = true;
+             }
+         }

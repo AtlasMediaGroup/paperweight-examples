@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Sat, 11 May 2024 13:08:40 -0500
+Subject: [PATCH] Validate block entity/entity tag query positions
+
+
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 65284355b6fc97eb1967e5c6fd51bc5b018e3e29..26eb85c9be17fcac00a5f31c2ede3111319c4044 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -1266,7 +1266,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+         if (this.player.hasPermissions(2)) {
+             Entity entity = this.player.level().getEntity(packet.getEntityId());
+ 
+-            if (entity != null) {
++            if (entity != null && this.player.distanceToSqr(entity.position().x, entity.position().y, entity.position().z) < 32 * 32) { // Scissors - Validate entity tag query positions
+                 CompoundTag nbttagcompound = entity.saveWithoutId(new CompoundTag());
+ 
+                 this.player.connection.send(new ClientboundTagQueryPacket(packet.getTransactionId(), nbttagcompound));
+@@ -1298,7 +1298,10 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+     @Override
+     public void handleBlockEntityTagQuery(ServerboundBlockEntityTagQueryPacket packet) {
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel());
+-        if (this.player.hasPermissions(2)) {
++        // Scissors start - Validate block entity tag query positions
++        if (this.player.hasPermissions(2) && this.player.level().isLoadedAndInBounds(packet.getPos())
++            && this.player.distanceToSqr(packet.getPos().getX(), packet.getPos().getY(), packet.getPos().getZ()) < 32 * 32) {
++            // Scissors end
+             BlockEntity tileentity = this.player.level().getBlockEntity(packet.getPos());
+             CompoundTag nbttagcompound = tileentity != null ? tileentity.saveWithoutMetadata(this.player.registryAccess()) : null;
+ 

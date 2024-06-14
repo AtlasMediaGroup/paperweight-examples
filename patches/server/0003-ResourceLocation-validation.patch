@@ -1,97 +1,40 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Telesphoreo <me@telesphoreo.me>
-Date: Sun, 5 May 2024 12:29:05 -0500
+Date: Fri, 14 Jun 2024 17:48:49 -0500
 Subject: [PATCH] ResourceLocation validation
 
 
-diff --git a/src/main/java/com/destroystokyo/paper/loottable/PaperContainerEntityLootableInventory.java b/src/main/java/com/destroystokyo/paper/loottable/PaperContainerEntityLootableInventory.java
-index 183f31c81d9c0a966e6b20c2cff3d279dfc7e622..5d32a985894656712553a3f79abc454d6802d135 100644
---- a/src/main/java/com/destroystokyo/paper/loottable/PaperContainerEntityLootableInventory.java
-+++ b/src/main/java/com/destroystokyo/paper/loottable/PaperContainerEntityLootableInventory.java
-@@ -20,7 +20,7 @@ public class PaperContainerEntityLootableInventory implements PaperLootableEntit
+diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
+index 8b612b772ca87c852d0b108c2afd6785c261c9b9..e063562fdbe05882c4a81f9fb15141056c35ed8b 100644
+--- a/src/main/java/net/minecraft/world/entity/Mob.java
++++ b/src/main/java/net/minecraft/world/entity/Mob.java
+@@ -678,7 +678,11 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Targeti
  
      @Override
-     public org.bukkit.loot.LootTable getLootTable() {
--        return entity.getLootTable() != null && !entity.getLootTable().location().getPath().isEmpty() ? Optionull.map(entity.getLootTable(), rk -> Bukkit.getLootTable(CraftNamespacedKey.fromMinecraft(rk.location()))) : null;
-+        return entity.getLootTable() != null && !entity.getLootTable().location().getPath().isEmpty() && entity.getLootTable().toString().length() < 256 ? Optionull.map(entity.getLootTable(), rk -> Bukkit.getLootTable(CraftNamespacedKey.fromMinecraft(rk.location()))) : null; // Scissors - Validate length of loot tables before even trying
-     }
- 
-     @Override
-diff --git a/src/main/java/com/destroystokyo/paper/loottable/PaperTileEntityLootableInventory.java b/src/main/java/com/destroystokyo/paper/loottable/PaperTileEntityLootableInventory.java
-index 6f6e19b7b57cb3070ef5b6810d8449344705af8c..f364b0ca67c31ae2dfbdbf5eb7980e8ddf8b82f5 100644
---- a/src/main/java/com/destroystokyo/paper/loottable/PaperTileEntityLootableInventory.java
-+++ b/src/main/java/com/destroystokyo/paper/loottable/PaperTileEntityLootableInventory.java
-@@ -17,7 +17,7 @@ public class PaperTileEntityLootableInventory implements PaperLootableBlockInven
- 
-     @Override
-     public org.bukkit.loot.LootTable getLootTable() {
--        return tileEntityLootable.lootTable != null && !tileEntityLootable.lootTable.location().getPath().isEmpty() ? Bukkit.getLootTable(CraftNamespacedKey.fromMinecraft(tileEntityLootable.lootTable.location())) : null;
-+        return tileEntityLootable.lootTable != null && !tileEntityLootable.lootTable.location().getPath().isEmpty() && tileEntityLootable.lootTable.toString().length() < 256 ? Bukkit.getLootTable(CraftNamespacedKey.fromMinecraft(tileEntityLootable.lootTable.location())) : null; // Scissors - Validate length of loot tables before even trying
-     }
- 
-     @Override
-diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftLootable.java b/src/main/java/org/bukkit/craftbukkit/block/CraftLootable.java
-index c3215f15b3088199dcf96f62b58d0ec7c2b4125c..e290a8b5f790b8ad84c3e16f650afb731018fd4d 100644
---- a/src/main/java/org/bukkit/craftbukkit/block/CraftLootable.java
-+++ b/src/main/java/org/bukkit/craftbukkit/block/CraftLootable.java
-@@ -1,5 +1,6 @@
- package org.bukkit.craftbukkit.block;
- 
-+import net.minecraft.resources.ResourceLocation;
- import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
- import org.bukkit.Location;
- import org.bukkit.Nameable;
-@@ -29,7 +30,13 @@ public abstract class CraftLootable<T extends RandomizableContainerBlockEntity>
- 
-     @Override
-     public LootTable getLootTable() {
--        return CraftLootTable.minecraftToBukkit(this.getSnapshot().lootTable);
-+        // Scissors start - Return a null loot table if the specified loot table is not valid
+     public final ResourceKey<LootTable> getLootTable() {
+-        return this.lootTable == null ? this.getDefaultLootTable() : this.lootTable;
 +        try {
-+            return CraftLootTable.minecraftToBukkit(this.getSnapshot().lootTable);
++            return this.lootTable == null ? this.getDefaultLootTable() : this.lootTable;
++        } catch (Exception ex) {
++            return this.getDefaultLootTable();
++        }
+     }
+ 
+     protected ResourceKey<LootTable> getDefaultLootTable() {
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftLootTable.java b/src/main/java/org/bukkit/craftbukkit/CraftLootTable.java
+index 1f90f4b3f310b8cf5750c3a581be178f19b979d2..0c6aad363f99bd86393335b9df1e186a3198274f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftLootTable.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftLootTable.java
+@@ -38,7 +38,11 @@ public class CraftLootTable implements org.bukkit.loot.LootTable {
+     }
+ 
+     public static org.bukkit.loot.LootTable minecraftToBukkit(ResourceKey<LootTable> minecraft) {
+-        return (minecraft == null || minecraft.location().getPath().isEmpty()) ? null : Bukkit.getLootTable(CraftLootTable.minecraftToBukkitKey(minecraft)); // Paper - fix some NamespacedKey parsing
++        try {
++            return (minecraft == null || minecraft.location().getPath().isEmpty()) ? null : Bukkit.getLootTable(CraftLootTable.minecraftToBukkitKey(minecraft)); // Paper - fix some NamespacedKey parsing
 +        } catch (Exception ex) {
 +            return null;
 +        }
-+        // Scissors end
      }
  
-     @Override
-diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartContainer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartContainer.java
-index 4388cd0303b45faf21631e7644baebb63baaba10..3c049fe04c6a4166e6fd3a24de9209d806d1e33a 100644
---- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartContainer.java
-+++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMinecartContainer.java
-@@ -25,7 +25,14 @@ public abstract class CraftMinecartContainer extends CraftMinecart implements Lo
- 
-     @Override
-     public LootTable getLootTable() {
--        return CraftLootTable.minecraftToBukkit(this.getHandle().lootTable);
-+        // Scissors start - Return a null loot table if the specified loot table is not valid
-+        try {
-+            return CraftLootTable.minecraftToBukkit(this.getHandle().lootTable);
-+        } catch (Exception exception)
-+        {
-+            return null;
-+        }
-+        // Scissors end
-     }
- 
-     @Override
-diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
-index e155501fb3a88edf3ddac3aa0aae1b6a5a84962e..b588a3a39f2c003ddd1490decbce31f0b22bb2e1 100644
---- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
-+++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
-@@ -78,7 +78,13 @@ public abstract class CraftMob extends CraftLivingEntity implements Mob {
- 
-     @Override
-     public LootTable getLootTable() {
--        return CraftLootTable.minecraftToBukkit(this.getHandle().getLootTable());
-+        // Scissors start - Return a null loot table if the specified loot table is not valid
-+        try {
-+            return CraftLootTable.minecraftToBukkit(this.getHandle().getLootTable());
-+        } catch (Exception exception) {
-+            return null;
-+        }
-+        // Scissors end
-     }
- 
-     @Override
+     public static NamespacedKey minecraftToBukkitKey(ResourceKey<LootTable> minecraft) {

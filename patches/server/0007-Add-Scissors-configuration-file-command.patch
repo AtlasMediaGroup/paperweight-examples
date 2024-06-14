@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Telesphoreo <me@telesphoreo.me>
-Date: Wed, 8 May 2024 11:59:08 -0500
+Date: Fri, 14 Jun 2024 17:56:03 -0500
 Subject: [PATCH] Add Scissors configuration file & command
 
 
@@ -184,10 +184,10 @@ index 0000000000000000000000000000000000000000..797677d892d83cf54d9a60af1e277b67
 +}
 diff --git a/src/main/java/me/totalfreedom/scissors/ScissorsConfig.java b/src/main/java/me/totalfreedom/scissors/ScissorsConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..2de0a3d68c3834b9834ab359c823195f8d90ceb2
+index 0000000000000000000000000000000000000000..1ada5b7778f03815455cac1a4aad4411d0cae053
 --- /dev/null
 +++ b/src/main/java/me/totalfreedom/scissors/ScissorsConfig.java
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,224 @@
 +package me.totalfreedom.scissors;
 +
 +
@@ -272,7 +272,7 @@ index 0000000000000000000000000000000000000000..2de0a3d68c3834b9834ab359c823195f
 +        }
 +
 +        commands = new HashMap<>();
-+        commands.put("me/totalfreedom/scissors", new ScissorsCommand("me/totalfreedom/scissors"));
++        commands.put("scissors", new ScissorsCommand("scissors"));
 +
 +        config.options().header(HEADER);
 +        config.options().copyDefaults(true);
@@ -412,9 +412,8 @@ index 0000000000000000000000000000000000000000..2de0a3d68c3834b9834ab359c823195f
 +        return config.getString(path, config.getString(path));
 +    }
 +}
-+
 diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
-index 5443013060b62e3bfcc51cddca96d1c0bc59fe72..1decf99fc2e6b332137eb240210f9f4a9be01085 100644
+index 244a19ecd0234fa1d7a6ecfea20751595688605d..fdc76373fd458884a45312c6edf2915a811910eb 100644
 --- a/src/main/java/net/minecraft/server/Main.java
 +++ b/src/main/java/net/minecraft/server/Main.java
 @@ -133,6 +133,7 @@ public class Main {
@@ -426,12 +425,12 @@ index 5443013060b62e3bfcc51cddca96d1c0bc59fe72..1decf99fc2e6b332137eb240210f9f4a
  
              if (optionset.has("initSettings")) { // CraftBukkit
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index eb4fc900164d1fb3a78653ae8bc42ea30323f5b7..aef57b0054ceed16b0e2b733263049527ccafb1d 100644
+index ad967cc2283f902c76e48a59d59cf0dbdacbb5e3..0342ea47cb313e28027cb76e632a4d5b1565fc8d 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -235,6 +235,16 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -234,6 +234,16 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
          com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
-         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // Paper - init PaperBrigadierProvider
  
 +        // Scissors start
 +        try {
@@ -447,10 +446,10 @@ index eb4fc900164d1fb3a78653ae8bc42ea30323f5b7..aef57b0054ceed16b0e2b73326304952
          this.setFlightAllowed(dedicatedserverproperties.allowFlight);
          this.setMotd(dedicatedserverproperties.motd);
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 180c16f303ae1aa2c2a9471b2c9cce70303668d4..57e82f87bc45b5c5c67aafe8fb4a0bb172c92270 100644
+index 5db08432b6afd3639688830e717f40ceaf599248..f2497d08157d3007d20be7ab333ab7c4f282c414 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1053,6 +1053,7 @@ public final class CraftServer implements Server {
+@@ -1055,6 +1055,7 @@ public final class CraftServer implements Server {
          }
  
          org.spigotmc.SpigotConfig.init((File) this.console.options.valueOf("spigot-settings")); // Spigot
@@ -458,7 +457,7 @@ index 180c16f303ae1aa2c2a9471b2c9cce70303668d4..57e82f87bc45b5c5c67aafe8fb4a0bb1
          this.console.paperConfigurations.reloadConfigs(this.console);
          for (ServerLevel world : this.console.getAllLevels()) {
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
-@@ -1084,6 +1085,7 @@ public final class CraftServer implements Server {
+@@ -1087,6 +1088,7 @@ public final class CraftServer implements Server {
          this.reloadData();
          org.spigotmc.SpigotConfig.registerCommands(); // Spigot
          io.papermc.paper.command.PaperCommands.registerCommands(this.console); // Paper
@@ -466,7 +465,7 @@ index 180c16f303ae1aa2c2a9471b2c9cce70303668d4..57e82f87bc45b5c5c67aafe8fb4a0bb1
          this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
          this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions");
  
-@@ -3048,6 +3050,14 @@ public final class CraftServer implements Server {
+@@ -3053,6 +3055,14 @@ public final class CraftServer implements Server {
              return CraftServer.this.console.paperConfigurations.createLegacyObject(CraftServer.this.console);
          }
  
@@ -482,10 +481,10 @@ index 180c16f303ae1aa2c2a9471b2c9cce70303668d4..57e82f87bc45b5c5c67aafe8fb4a0bb1
          public void restart() {
              org.spigotmc.RestartCommand.restart();
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index c988afa496d25314451435eedd64079a0d87cef0..cd5c409cb0025c668c324e59fe191133981b2373 100644
+index b86ba59158964f73abd6622341a9acb98a33fa44..6101ff98022e7c1ad253edb112a0bf87b139e62b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
-@@ -168,6 +168,19 @@ public class Main {
+@@ -169,6 +169,19 @@ public class Main {
                          .defaultsTo(new File("paper.yml"))
                          .describedAs("Yml file");
  

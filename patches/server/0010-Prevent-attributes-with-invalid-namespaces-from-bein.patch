@@ -1,23 +1,23 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Telesphoreo <me@telesphoreo.me>
-Date: Wed, 8 May 2024 12:26:49 -0500
+Date: Fri, 14 Jun 2024 18:00:35 -0500
 Subject: [PATCH] Prevent attributes with invalid namespaces from being applied
  to CraftMetaItems
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
-index 03f9fff7c06bf5f166d6277e3aa6adb5f646042d..1c48622db32bc99527bb551b5b71215b4eaf123c 100644
+index b6cd6897844aa9c8b9a94e41c56c4cfe4ac78780..34130c2cc3f643fcfe32a02747c45dd1eba05396 100644
 --- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
 +++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
-@@ -50,6 +50,7 @@ import net.minecraft.nbt.NbtIo;
- import net.minecraft.nbt.NbtOps;
+@@ -57,6 +57,7 @@ import net.minecraft.nbt.NbtOps;
+ import net.minecraft.nbt.SnbtPrinterTagVisitor;
  import net.minecraft.nbt.Tag;
  import net.minecraft.network.chat.Component;
 +import net.minecraft.resources.ResourceLocation;
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.util.Unit;
  import net.minecraft.world.entity.EquipmentSlotGroup;
-@@ -739,7 +740,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+@@ -764,7 +765,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
                  continue;
              }
              String attributeName = (String) obj;

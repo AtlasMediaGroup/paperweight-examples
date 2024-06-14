@@ -62,10 +62,10 @@ index df26c39a2bb20e2021b50211dce905483a77f4e6..0b85d5aef65fdb08c1c11f0ebb973078
                      }
                  }).reduce((accumulator, current) -> accumulator.append(component).append(current)).orElseGet(Component::empty);
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 2bc85351e6e52f90da5fdb29d8d042a06132d742..514c0a8842852bf73eac2e28e12834021164c93c 100644
+index 7ef9f67d27cc240191dd5d07e8dcf5fbdebe1049..6ee2d11e4f3fbc8424a2ffbe6a7ebd1832a25503 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -2603,12 +2603,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -2602,12 +2602,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
                      this.setRot(this.getYRot(), this.getXRot());
                      if (nbt.contains("CustomName", 8)) {
                          String s = nbt.getString("CustomName");
@@ -80,7 +80,7 @@ index 2bc85351e6e52f90da5fdb29d8d042a06132d742..514c0a8842852bf73eac2e28e1283402
  
                      this.setCustomNameVisible(nbt.getBoolean("CustomNameVisible"));
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java
-index 6349f2e0a5ba30d250f5ffe43771f325c0999a76..ad6ba965da83cb328726f5f6e1d5df06015b7c42 100644
+index c0563260277f9f4bd9ff08993b2efb4bca9a0c60..f3c296f2464620083e44c14cc99eca1add8f8d9b 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/BlockEntity.java
 @@ -362,7 +362,7 @@ public abstract class BlockEntity {

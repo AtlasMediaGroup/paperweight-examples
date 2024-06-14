@@ -6,10 +6,10 @@ Subject: [PATCH] Ignore errors thrown when trying to remove minecart entities
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
-index 2704389bc3ec6dbbf1b568a4380972f8c0d62d15..508275ec947826bc14b1671c2ae29d9804a811f2 100644
+index 9549eee0d92f322bd5232abd7e695213660c2e22..94a689e1adf24f6385dc97eb5cc3790c8e14da97 100644
 --- a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
 +++ b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
-@@ -148,8 +148,14 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+@@ -142,8 +142,14 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
      @Override
      public void remove(Entity.RemovalReason entity_removalreason, EntityRemoveEvent.Cause cause) {
          // CraftBukkit end

@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Fri, 14 Jun 2024 18:07:11 -0500
+Subject: [PATCH] Patch invalid entity rotation log spam
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 6ee2d11e4f3fbc8424a2ffbe6a7ebd1832a25503..6bfe06748df9e36c20dc276471f209c1072ad3e4 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -4812,7 +4812,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+ 
+     public void setXRot(float pitch) {
+         if (!Float.isFinite(pitch)) {
+-            Util.logAndPauseIfInIde("Invalid entity rotation: " + pitch + ", discarding.");
++            // Scissors - Patch invalid entity rotation log spam
+         } else {
+             this.xRot = pitch;
+         }

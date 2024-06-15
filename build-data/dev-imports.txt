@@ -21,3 +21,5 @@ minecraft net.minecraft.nbt.TextComponentTagVisitor
 minecraft net.minecraft.world.level.block.entity.StructureBlockEntity
 minecraft net.minecraft.world.ContainerHelper
 minecraft net.minecraft.advancements.critereon.MinMaxBounds
+minecraft net.minecraft.network.protocol.game.ServerboundSetCommandMinecartPacket
+minecraft net.minecraft.world.entity.boss.enderdragon.phases.DragonChargePlayerPhase

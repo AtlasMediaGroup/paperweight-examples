@@ -1,0 +1,116 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Fri, 14 Jun 2024 18:12:12 -0500
+Subject: [PATCH] Add configuration option to disable chat signatures
+
+
+diff --git a/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java b/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java
+index c87b708c368713a23a10ad97704575ee4df27891..72b22821165efaecf9e2fa243d0ce3e45931d00c 100644
+--- a/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java
++++ b/src/main/java/net/minecraft/network/chat/OutgoingChatMessage.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.network.chat;
+ 
++import me.totalfreedom.scissors.ScissorsConfig;
+ import net.minecraft.server.level.ServerPlayer;
+ 
+ public interface OutgoingChatMessage {
+@@ -46,9 +47,19 @@ public interface OutgoingChatMessage {
+             // Paper end
+             PlayerChatMessage playerChatMessage = this.message.filter(filterMaskEnabled);
+             playerChatMessage = unsigned != null ? playerChatMessage.withUnsignedContent(unsigned) : playerChatMessage; // Paper
+-            if (!playerChatMessage.isFullyFiltered()) {
++            // Scissors start
++            if (!playerChatMessage.isFullyFiltered() && ScissorsConfig.chatSignaturesEnabled) {
+                 sender.connection.sendPlayerChatMessage(playerChatMessage, params);
++                return;
+             }
++            sender.connection.sendPlayerChatMessage(new PlayerChatMessage(
++                SignedMessageLink.unsigned(playerChatMessage.sender()),
++                null,
++                SignedMessageBody.unsigned(playerChatMessage.signedContent()),
++                unsigned,
++                playerChatMessage.filterMask()
++            ), params);
++            // Scissors end
+         }
+     }
+ }
+diff --git a/src/main/java/net/minecraft/network/chat/SignedMessageChain.java b/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
+index 300929a406905f5ff1ede664d5b99fb0938d4d2e..769da86c130354f8c31642f5d87196b68ccd2dd5 100644
+--- a/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
++++ b/src/main/java/net/minecraft/network/chat/SignedMessageChain.java
+@@ -5,6 +5,8 @@ import java.time.Instant;
+ import java.util.UUID;
+ import java.util.function.BooleanSupplier;
+ import javax.annotation.Nullable;
++
++import me.totalfreedom.scissors.ScissorsConfig;
+ import net.minecraft.util.SignatureValidator;
+ import net.minecraft.util.Signer;
+ import net.minecraft.world.entity.player.ProfilePublicKey;
+@@ -55,7 +57,7 @@ public class SignedMessageChain {
+                             this.setChainBroken();
+                             throw new SignedMessageChain.DecodeException(SignedMessageChain.DecodeException.INVALID_SIGNATURE);
+                         } else {
+-                            if (playerChatMessage.hasExpiredServer(Instant.now())) {
++                            if (playerChatMessage.hasExpiredServer(Instant.now()) && ScissorsConfig.chatSignaturesEnabled) { // Scissors
+                                 SignedMessageChain.LOGGER.warn("Received expired chat: '{}'. Is the client/server system time unsynchronized?", body.content());
+                             }
+ 
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 703a4ea4c303b28d9cebb0bec86777529ef970da..779d44f878e3ae48f1808d1f48bf2b3120cc97ed 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
+ 
++import me.totalfreedom.scissors.ScissorsConfig;
+ import me.totalfreedom.scissors.event.player.SpectatorTeleportEvent;
+ import net.kyori.adventure.text.format.NamedTextColor;
+ import net.minecraft.ChatFormatting;
+@@ -2268,6 +2269,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+     }
+ 
+     private void handleMessageDecodeFailure(SignedMessageChain.DecodeException exception) {
++        if (!ScissorsConfig.chatSignaturesEnabled) return; // Scissors
+         ServerGamePacketListenerImpl.LOGGER.warn("Failed to update secure chat state for {}: '{}'", this.player.getGameProfile().getName(), exception.getComponent().getString());
+         this.player.sendSystemMessage(exception.getComponent().copy().withStyle(ChatFormatting.RED));
+     }
+@@ -2364,6 +2366,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+             Optional<LastSeenMessages> optional = this.lastSeenMessages.applyUpdate(acknowledgment);
+ 
+             if (optional.isEmpty()) {
++                if (!ScissorsConfig.chatSignaturesEnabled) return optional; // Scissors
+                 ServerGamePacketListenerImpl.LOGGER.warn("Failed to validate message acknowledgements from {}", this.player.getName().getString());
+                 this.disconnect(ServerGamePacketListenerImpl.CHAT_VALIDATION_FAILED, org.bukkit.event.player.PlayerKickEvent.Cause.CHAT_VALIDATION_FAILED); // Paper - kick event causes
+             }
+@@ -2549,6 +2552,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+ 
+         synchronized (this.lastSeenMessages) {
+             if (!this.lastSeenMessages.applyOffset(packet.offset())) {
++                if (!ScissorsConfig.chatSignaturesEnabled) return; // Scissors
+                 ServerGamePacketListenerImpl.LOGGER.warn("Failed to validate message acknowledgements from {}", this.player.getName().getString());
+                 this.disconnect(ServerGamePacketListenerImpl.CHAT_VALIDATION_FAILED, org.bukkit.event.player.PlayerKickEvent.Cause.CHAT_VALIDATION_FAILED); // Paper - kick event causes
+             }
+@@ -3532,6 +3536,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+     @Override
+     public void handleChatSessionUpdate(ServerboundChatSessionUpdatePacket packet) {
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel());
++        if (!ScissorsConfig.chatSignaturesEnabled) return; // Scissors
+         RemoteChatSession.Data remotechatsession_a = packet.chatSession();
+         ProfilePublicKey.Data profilepublickey_a = this.chatSession != null ? this.chatSession.profilePublicKey().data() : null;
+         ProfilePublicKey.Data profilepublickey_a1 = remotechatsession_a.profilePublicKey();
+diff --git a/src/main/java/net/minecraft/world/level/block/SculkSpreader.java b/src/main/java/net/minecraft/world/level/block/SculkSpreader.java
+index dbdd9cb76f9e2d0962001d9a1e82896c907d7aea..1a3417361960f470faafe0d28aa08b49b463bba4 100644
+--- a/src/main/java/net/minecraft/world/level/block/SculkSpreader.java
++++ b/src/main/java/net/minecraft/world/level/block/SculkSpreader.java
+@@ -182,6 +182,7 @@ public class SculkSpreader {
+             while (iterator.hasNext()) {
+                 SculkSpreader.ChargeCursor sculkspreader_a = (SculkSpreader.ChargeCursor) iterator.next();
+ 
++                if (!world.getMinecraftWorld().isLoadedAndInBounds(sculkspreader_a.getPos())) continue; // Scissors
+                 sculkspreader_a.update(world, pos, random, this, shouldConvertToBlock);
+                 if (sculkspreader_a.charge <= 0) {
+                     world.levelEvent(3006, sculkspreader_a.getPos(), 0);

@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Fri, 14 Jun 2024 18:49:11 -0500
+Subject: [PATCH] Mute invalid Enderdragon phases
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonChargePlayerPhase.java b/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonChargePlayerPhase.java
+index 1b1a210a86121049e507a497649727a99452c0a2..5501d94f3b39665a94062ae97b3739ae197dadb1 100644
+--- a/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonChargePlayerPhase.java
++++ b/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonChargePlayerPhase.java
+@@ -20,7 +20,7 @@ public class DragonChargePlayerPhase extends AbstractDragonPhaseInstance {
+     @Override
+     public void doServerTick() {
+         if (this.targetLocation == null) {
+-            LOGGER.warn("Aborting charge player as no target was set.");
++            // Scissors - Mute invalid Enderdragon phases
+             this.dragon.getPhaseManager().setPhase(EnderDragonPhase.HOLDING_PATTERN);
+         } else if (this.timeSinceCharge > 0 && this.timeSinceCharge++ >= 10) {
+             this.dragon.getPhaseManager().setPhase(EnderDragonPhase.HOLDING_PATTERN);
+diff --git a/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonStrafePlayerPhase.java b/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonStrafePlayerPhase.java
+index c5269c3117901b8521720d1b32689d7f600f20a3..02dd6f72aa16e6b3edec700b7bc82a84b5ca8dd9 100644
+--- a/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonStrafePlayerPhase.java
++++ b/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonStrafePlayerPhase.java
+@@ -31,7 +31,7 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {
+     @Override
+     public void doServerTick() {
+         if (this.attackTarget == null) {
+-            LOGGER.warn("Skipping player strafe phase because no player was found");
++            // Scissors - Mute invalid Enderdragon phases
+             this.dragon.getPhaseManager().setPhase(EnderDragonPhase.HOLDING_PATTERN);
+         } else {
+             if (this.currentPath != null && this.currentPath.isDone()) {

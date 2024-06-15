@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Fri, 14 Jun 2024 18:23:46 -0500
+Subject: [PATCH] Limit beacon effectRange
+
+
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/BeaconBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
+index a6ffbbc1b5021564864e42c0756342352c2b8290..724edea5d4399fef2ddadbe631adef3d22513894 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
+@@ -91,7 +91,7 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider, Name
+     private double effectRange = -1;
+ 
+     public double getEffectRange() {
+-        if (this.effectRange < 0) {
++        if (this.effectRange < 0 || this.effectRange > 256) { // Scissors
+             return this.levels * 10 + 10;
+         } else {
+             return effectRange;
+@@ -458,6 +458,7 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider, Name
+ 
+         this.lockKey = LockCode.fromTag(nbt);
+         this.effectRange = nbt.contains(PAPER_RANGE_TAG, 6) ? nbt.getDouble(PAPER_RANGE_TAG) : -1; // Paper - Custom beacon ranges
++        if (this.effectRange > 256) this.effectRange = 256; // Scissors
+     }
+ 
+     @Override

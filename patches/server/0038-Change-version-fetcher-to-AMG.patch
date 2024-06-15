@@ -1,0 +1,76 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Fri, 14 Jun 2024 18:56:18 -0500
+Subject: [PATCH] Change version fetcher to AMG
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+index 532306cacd52579cdf37e4aca25887b1ed3ba6a1..1cdba130f6224ba0eb5e958d3328b1c476520efe 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
++++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+@@ -18,10 +18,14 @@ import java.net.URI;
+ import java.util.Optional;
+ import java.util.OptionalInt;
+ import java.util.stream.StreamSupport;
++
++import io.papermc.paper.util.JarManifests;
+ import net.kyori.adventure.text.Component;
+ import net.kyori.adventure.text.event.ClickEvent;
+ import net.kyori.adventure.text.format.NamedTextColor;
+ import net.kyori.adventure.text.format.TextDecoration;
++import org.bukkit.Bukkit;
++import org.bukkit.Server;
+ import org.checkerframework.checker.nullness.qual.NonNull;
+ import org.checkerframework.checker.nullness.qual.Nullable;
+ import org.checkerframework.framework.qual.DefaultQualifier;
+@@ -35,7 +39,7 @@ public class PaperVersionFetcher implements VersionFetcher {
+     private static final Logger LOGGER = LogUtils.getClassLogger();
+     private static final int DISTANCE_ERROR = -1;
+     private static final int DISTANCE_UNKNOWN = -2;
+-    private static final String DOWNLOAD_PAGE = "https://papermc.io/downloads/paper";
++    private static final String DOWNLOAD_PAGE = "https://ci.plex.us.org/job/Scissors/job/" + ServerBuildInfo.buildInfo().gitBranch(); // Scissors
+ 
+     @Override
+     public long getCacheTime() {
+@@ -49,7 +53,7 @@ public class PaperVersionFetcher implements VersionFetcher {
+         if (build.buildNumber().isEmpty() && build.gitCommit().isEmpty()) {
+             updateMessage = text("You are running a development version without access to version information", color(0xFF5300));
+         } else {
+-            updateMessage = getUpdateStatusMessage("PaperMC/Paper", build);
++            updateMessage = getUpdateStatusMessage("AtlasMediaGroup/Scissors", build);
+         }
+         final @Nullable Component history = this.getHistory();
+ 
+@@ -59,15 +63,10 @@ public class PaperVersionFetcher implements VersionFetcher {
+     private static Component getUpdateStatusMessage(final String repo, final ServerBuildInfo build) {
+         int distance = DISTANCE_ERROR;
+ 
+-        final OptionalInt buildNumber = build.buildNumber();
+-        if (buildNumber.isPresent()) {
+-            distance = fetchDistanceFromSiteApi(build, buildNumber.getAsInt());
+-        } else {
+-            final Optional<String> gitBranch = build.gitBranch();
+-            final Optional<String> gitCommit = build.gitCommit();
+-            if (gitBranch.isPresent() && gitCommit.isPresent()) {
+-                distance = fetchDistanceFromGitHub(repo, gitBranch.get(), gitCommit.get());
+-            }
++        final Optional<String> gitBranch = build.gitBranch();
++        final Optional<String> gitCommit = build.gitCommit();
++        if (gitBranch.isPresent() && gitCommit.isPresent()) {
++            distance = fetchDistanceFromGitHub(repo, gitBranch.get(), gitCommit.get());
+         }
+ 
+         return switch (distance) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index 6101ff98022e7c1ad253edb112a0bf87b139e62b..4338714a0bc8c3618a88b915b575e8b17a77dbd8 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -316,7 +316,7 @@ public class Main {
+                     if (buildDate.before(deadline.getTime())) {
+                         // Paper start - This is some stupid bullshit
+                         System.err.println("*** Warning, you've not updated in a while! ***");
+-                        System.err.println("*** Please download a new build as per instructions from https://papermc.io/downloads/paper ***"); // Paper
++                        System.err.println("*** Please download a new build as per instructions from https://ci.plex.us.org/job/Scissors ***"); // Paper
+                         //System.err.println("*** Server will start in 20 seconds ***");
+                         //Thread.sleep(TimeUnit.SECONDS.toMillis(20));
+                         // Paper end

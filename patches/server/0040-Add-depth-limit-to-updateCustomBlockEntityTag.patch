@@ -1,0 +1,65 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Fri, 14 Jun 2024 19:05:44 -0500
+Subject: [PATCH] Add depth limit to updateCustomBlockEntityTag
+
+
+diff --git a/src/main/java/net/minecraft/world/item/BlockItem.java b/src/main/java/net/minecraft/world/item/BlockItem.java
+index 96fb69ec6db2e7c8c728435f0c537b076259b2fb..b27a5f2251012f256652bcb50caf317c31378b63 100644
+--- a/src/main/java/net/minecraft/world/item/BlockItem.java
++++ b/src/main/java/net/minecraft/world/item/BlockItem.java
+@@ -2,12 +2,18 @@ package net.minecraft.world.item;
+ 
+ import java.util.List;
+ import java.util.Map;
++import java.util.regex.Matcher;
++import java.util.regex.Pattern;
+ import javax.annotation.Nullable;
++
++import me.totalfreedom.scissors.ScissorsConfig;
+ import net.minecraft.advancements.CriteriaTriggers;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Holder;
+ import net.minecraft.core.component.DataComponents;
+ import net.minecraft.nbt.CompoundTag;
++import net.minecraft.nbt.ListTag;
++import net.minecraft.nbt.Tag;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ServerLevel;
+@@ -217,6 +223,35 @@ public class BlockItem extends Item {
+             if (!customdata.isEmpty()) {
+                 BlockEntity tileentity = world.getBlockEntity(pos);
+ 
++                // Scissors start
++                if (customdata.contains("CustomName")) {
++                    String customName = customdata.getUnsafe().getString("CustomName");
++                    Pattern EXTRA_PATTERN = Pattern.compile("\"extra\":(\\[(.*?)\\{|\\[\\{)");
++                    Matcher matcher = EXTRA_PATTERN.matcher(customName);
++                    if (matcher.find()) {
++                        String matcherString = matcher.group();
++                        int penalty = (matcherString.startsWith("\"extra\":[{") ? (int) matcher.results().count() : matcher.group().replace("\"extra\":", "").replace("{", "").length()) * 12;
++                        if (penalty > ScissorsConfig.componentDepthLimit) {
++                            return false;
++                        }
++                    }
++                }
++
++                for (Tag tag : customdata.getUnsafe().tags.values()) {
++                    if (tag instanceof CompoundTag compoundTag && compoundTag.contains("messages")) {
++                        ListTag messagesList = compoundTag.getList("messages", 8);
++                        Pattern TRANSLATE_PLACEHOLDER_PATTERN = Pattern.compile("%[0-9]+\\$s");
++                        Matcher matcher = TRANSLATE_PLACEHOLDER_PATTERN.matcher(messagesList.toString());
++                        if (matcher.find()) {
++                            int penalty = (int) matcher.results().count() * 12;
++                            if (penalty > ScissorsConfig.componentDepthLimit) {
++                                return false;
++                            }
++                        }
++                    }
++                }
++                // Scissors end
++
+                 if (tileentity != null) {
+                     if (!world.isClientSide && tileentity.onlyOpCanSetNbt() && (player == null || !(player.canUseGameMasterBlocks() || (player.getAbilities().instabuild && player.getBukkitEntity().hasPermission("minecraft.nbt.place"))))) { // Spigot - add permission
+                         return false;

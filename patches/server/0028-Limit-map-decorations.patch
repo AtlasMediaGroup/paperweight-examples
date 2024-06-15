@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Fri, 14 Jun 2024 18:20:01 -0500
+Subject: [PATCH] Limit map decorations
+
+
+diff --git a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
+index cf8ae635fce7ea66d4e1ab1dc05575f035fa95ef..6983cf8ecf299285db200ce519c781882c0d2a9b 100644
+--- a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
++++ b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
+@@ -366,6 +366,11 @@ public class MapItemSavedData extends SavedData {
+     }
+ 
+     private void addDecoration(Holder<MapDecorationType> type, @Nullable LevelAccessor world, String key, double x, double z, double rotation, @Nullable Component text) {
++        // Scissors start - Limit decoration count
++        if (this.decorations.size() > 32) {
++            return;
++        }
++        // Scissors end
+         int i = 1 << this.scale;
+         float f = (float) (x - (double) this.centerX) / (float) i;
+         float f1 = (float) (z - (double) this.centerZ) / (float) i;

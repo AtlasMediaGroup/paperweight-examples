@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Fri, 14 Jun 2024 18:50:32 -0500
+Subject: [PATCH] Add length limit to note block sound
+
+
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/SkullBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/SkullBlockEntity.java
+index e79b1ccbdf12006d72401b5be1ac25187033ec59..a7b1a44de0689f7d07bd3e69048b04c28c272159 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/SkullBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/SkullBlockEntity.java
+@@ -147,7 +147,7 @@ public class SkullBlockEntity extends BlockEntity {
+         }
+ 
+         if (nbt.contains("note_block_sound", 8)) {
+-            this.noteBlockSound = ResourceLocation.tryParse(nbt.getString("note_block_sound"));
++            this.noteBlockSound = ResourceLocation.tryParse(StringUtil.truncateStringIfNecessary(nbt.getString("note_block_sound"), 32767, false));
+         }
+ 
+         if (nbt.contains("custom_name", 8)) {

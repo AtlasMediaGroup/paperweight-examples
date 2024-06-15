@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Fri, 14 Jun 2024 18:39:39 -0500
+Subject: [PATCH] Limit save data for Bees and Vexes
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/animal/Bee.java b/src/main/java/net/minecraft/world/entity/animal/Bee.java
+index 0dfb8109fd8c022b079da00f6a0e3fc85b57bf7a..fdfe3ca7c2a1d34567651e64933392c4a17bd751 100644
+--- a/src/main/java/net/minecraft/world/entity/animal/Bee.java
++++ b/src/main/java/net/minecraft/world/entity/animal/Bee.java
+@@ -231,7 +231,13 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
+ 
+     @Override
+     public void readAdditionalSaveData(CompoundTag nbt) {
+-        this.hivePos = (BlockPos) NbtUtils.readBlockPos(nbt, "hive_pos").orElse(null); // CraftBukkit - decompile error
++        // Scissors start - limit hive_pos
++        if (nbt.contains("hive_pos"))
++        {
++            final BlockPos savedHivePos = NbtUtils.readBlockPos(nbt, "hive_pos").orElse(null); // CraftBukkit - decompile error
++            this.hivePos = this.level().isLoadedAndInBounds(savedHivePos) ? savedHivePos : null;
++        }
++        // Scissors end
+         this.savedFlowerPos = (BlockPos) NbtUtils.readBlockPos(nbt, "flower_pos").orElse(null); // CraftBukkit - decompile error
+         super.readAdditionalSaveData(nbt);
+         this.setHasNectar(nbt.getBoolean("HasNectar"));
+diff --git a/src/main/java/net/minecraft/world/entity/monster/Vex.java b/src/main/java/net/minecraft/world/entity/monster/Vex.java
+index fd3b37dde54623ba38186efb2a64d364c86b81d2..ae1051a7ebc2b2bf6d5bf5582443fedeb307ee01 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/Vex.java
++++ b/src/main/java/net/minecraft/world/entity/monster/Vex.java
+@@ -111,7 +111,10 @@ public class Vex extends Monster implements TraceableEntity {
+     public void readAdditionalSaveData(CompoundTag nbt) {
+         super.readAdditionalSaveData(nbt);
+         if (nbt.contains("BoundX")) {
+-            this.boundOrigin = new BlockPos(nbt.getInt("BoundX"), nbt.getInt("BoundY"), nbt.getInt("BoundZ"));
++            // Scissors start - Limit Vex bound origin
++            final BlockPos savedBoundOrigin = new BlockPos(nbt.getInt("BoundX"), nbt.getInt("BoundY"), nbt.getInt("BoundZ"));
++            this.boundOrigin = this.level().isLoadedAndInBounds(savedBoundOrigin) ? savedBoundOrigin : null;
++            // Scissors end - Limit Vex bound origin
+         }
+ 
+         if (nbt.contains("LifeTicks")) {

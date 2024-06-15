@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Telesphoreo <me@telesphoreo.me>
+Date: Fri, 14 Jun 2024 18:21:25 -0500
+Subject: [PATCH] Prevent player banning using duplicate UUIDs
+
+
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index ca56a0b596976448da6bb2a0e82b3d5cd4133e12..f8198f99244b4a635fa6fc68757acb38008c4564 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -1673,7 +1673,13 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         if (entity != null) {
+             ServerLevel.LOGGER.warn("Force-added player with duplicate UUID {}", player.getUUID());
+             entity.unRide();
+-            this.removePlayerImmediately((ServerPlayer) entity, Entity.RemovalReason.DISCARDED);
++            // Scissors start - Prevent player banning using duplicate UUIDs
++            if (entity instanceof ServerPlayer serverPlayer) {
++                this.removePlayerImmediately(serverPlayer, Entity.RemovalReason.DISCARDED);
++            } else {
++                entity.discard(null);
++            }
++            // Scissors end
+         }
+ 
+         this.entityLookup.addNewEntity(player); // Paper - rewite chunk system

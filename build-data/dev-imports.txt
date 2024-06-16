@@ -8,18 +8,3 @@
 # To import classes from the vanilla Minecraft jar use `minecraft` as the artifactId:
 #     minecraft net.minecraft.world.level.entity.LevelEntityGetterAdapter
 #     minecraft net/minecraft/world/level/entity/LevelEntityGetter.java
-minecraft net.minecraft.network.chat.FormattedText
-minecraft net.minecraft.network.chat.contents.TranslatableContents.java
-minecraft net.minecraft.network.chat.HoverEvent
-minecraft net.minecraft.world.item.KnowledgeBookItem
-minecraft net.minecraft.network.chat.contents.NbtContents
-minecraft net.minecraft.network.chat.contents.EntityDataSource
-minecraft net.minecraft.network.chat.contents.DataSource
-minecraft net.minecraft.nbt.SnbtPrinterTagVisitor
-minecraft net.minecraft.nbt.StringTagVisitor
-minecraft net.minecraft.nbt.TextComponentTagVisitor
-minecraft net.minecraft.world.level.block.entity.StructureBlockEntity
-minecraft net.minecraft.world.ContainerHelper
-minecraft net.minecraft.advancements.critereon.MinMaxBounds
-minecraft net.minecraft.network.protocol.game.ServerboundSetCommandMinecartPacket
-minecraft net.minecraft.world.entity.boss.enderdragon.phases.DragonChargePlayerPhase

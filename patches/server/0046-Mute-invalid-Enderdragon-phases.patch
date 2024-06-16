@@ -18,7 +18,7 @@ index 1b1a210a86121049e507a497649727a99452c0a2..a8bcadbf64d5034b172427e16b1468b4
          } else if (this.timeSinceCharge > 0 && this.timeSinceCharge++ >= 10) {
              this.dragon.getPhaseManager().setPhase(EnderDragonPhase.HOLDING_PATTERN);
 diff --git a/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonStrafePlayerPhase.java b/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonStrafePlayerPhase.java
-index 13f60a16f07c50a278b158d64180009020a4dca6..289361cbaad2ca6392ee66627becb8f973bb1e54 100644
+index c5269c3117901b8521720d1b32689d7f600f20a3..3a8839ee4cb8cafb927ad49a9e8f9a2955eef973 100644
 --- a/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonStrafePlayerPhase.java
 +++ b/src/main/java/net/minecraft/world/entity/boss/enderdragon/phases/DragonStrafePlayerPhase.java
 @@ -31,7 +31,7 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {

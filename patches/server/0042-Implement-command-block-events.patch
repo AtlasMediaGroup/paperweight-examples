@@ -18,7 +18,7 @@ index c99fc118013cb3d4043638e2001a8297e79ddf9c..cdaa81e1f2167b29ec01cc25e51a8400
      private final boolean trackOutput;
  
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 88c98ba7673808819b8f85876f22743bc3a4f471..f96c0c5007d9e1d86bfe27518815dc798e431c6a 100644
+index 843793437737305bbdec598326a813f84b820d12..bbe76d46b599fb2f8211f3e62a76430db120f66f 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -1,6 +1,8 @@

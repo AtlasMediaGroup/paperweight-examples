@@ -5,28 +5,19 @@ Subject: [PATCH] Add more fallback code for chunk bans
 
 
 diff --git a/src/main/java/net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.java b/src/main/java/net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.java
-index 5d3e739d28d394ed59fe0003245cc55ac62e6087..7189525e573be6d5023c6b34fded8bd1259293f9 100644
+index 5d3e739d28d394ed59fe0003245cc55ac62e6087..e721aa95e0e11455df2fb337978cefdd1bbcf018 100644
 --- a/src/main/java/net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.java
 +++ b/src/main/java/net/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket.java
-@@ -1,11 +1,17 @@
+@@ -1,6 +1,8 @@
  package net.minecraft.network.protocol.game;
  
  import java.util.function.BiFunction;
-+import java.util.stream.Collectors;
 +
 +import me.totalfreedom.scissors.NbtUtility;
-+import net.minecraft.ChatFormatting;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.RegistryAccess;
  import net.minecraft.core.registries.Registries;
- import net.minecraft.nbt.CompoundTag;
- import net.minecraft.network.RegistryFriendlyByteBuf;
-+import net.minecraft.network.chat.Component;
-+import net.minecraft.network.chat.SignedMessageBody;
- import net.minecraft.network.codec.ByteBufCodecs;
- import net.minecraft.network.codec.StreamCodec;
- import net.minecraft.network.protocol.Packet;
-@@ -36,6 +42,23 @@ public class ClientboundBlockEntityDataPacket implements Packet<ClientGamePacket
+@@ -36,6 +38,23 @@ public class ClientboundBlockEntityDataPacket implements Packet<ClientGamePacket
          return create(blockEntity, BlockEntity::getUpdateTag);
      }
  
@@ -75,7 +66,7 @@ index 63f6a2437da9363786b55af0a7cbc5373232d35b..38e8e3e58821da896851a42d6088bc70
      public void handle(ClientGamePacketListener listener) {
          listener.handleContainerSetSlot(this);
 diff --git a/src/main/java/net/minecraft/network/protocol/game/ClientboundMapItemDataPacket.java b/src/main/java/net/minecraft/network/protocol/game/ClientboundMapItemDataPacket.java
-index 466dc69d8c06766733a6164fa5c911e902493a23..b89bf65249f3741d32a49de230ffaef2daeb8505 100644
+index 466dc69d8c06766733a6164fa5c911e902493a23..84f05afd07c23ffd34492b4c45344ccbfb66c2a9 100644
 --- a/src/main/java/net/minecraft/network/protocol/game/ClientboundMapItemDataPacket.java
 +++ b/src/main/java/net/minecraft/network/protocol/game/ClientboundMapItemDataPacket.java
 @@ -36,6 +36,19 @@ public record ClientboundMapItemDataPacket(
@@ -98,23 +89,12 @@ index 466dc69d8c06766733a6164fa5c911e902493a23..b89bf65249f3741d32a49de230ffaef2
      @Override
      public PacketType<ClientboundMapItemDataPacket> type() {
          return GamePacketTypes.CLIENTBOUND_MAP_ITEM_DATA;
-@@ -46,6 +59,8 @@ public record ClientboundMapItemDataPacket(
-         listener.handleMapItemData(this);
-     }
- 
-+
-+
-     public void applyToMap(MapItemSavedData mapState) {
-         this.decorations.ifPresent(mapState::addClientSideDecorations);
-         this.colorPatch.ifPresent(updateData -> updateData.applyToMap(mapState));
 diff --git a/src/main/java/net/minecraft/network/protocol/game/ClientboundPlayerChatPacket.java b/src/main/java/net/minecraft/network/protocol/game/ClientboundPlayerChatPacket.java
-index 37ab438ab37b9235666ae69376509bdde7722d87..cd1d0efec72c83e0f2bbc7ffcb5d2d3b8385f4fe 100644
+index 37ab438ab37b9235666ae69376509bdde7722d87..b6cdadfbfe8756a3fd10b7a2d93da31701bc44e1 100644
 --- a/src/main/java/net/minecraft/network/protocol/game/ClientboundPlayerChatPacket.java
 +++ b/src/main/java/net/minecraft/network/protocol/game/ClientboundPlayerChatPacket.java
-@@ -1,7 +1,10 @@
- package net.minecraft.network.protocol.game;
+@@ -2,6 +2,8 @@ package net.minecraft.network.protocol.game;
  
-+import java.util.Optional;
  import java.util.UUID;
  import javax.annotation.Nullable;
 +
@@ -122,7 +102,7 @@ index 37ab438ab37b9235666ae69376509bdde7722d87..cd1d0efec72c83e0f2bbc7ffcb5d2d3b
  import net.minecraft.network.FriendlyByteBuf;
  import net.minecraft.network.RegistryFriendlyByteBuf;
  import net.minecraft.network.chat.ChatType;
-@@ -39,6 +42,19 @@ public record ClientboundPlayerChatPacket(
+@@ -39,6 +41,19 @@ public record ClientboundPlayerChatPacket(
          );
      }
  
